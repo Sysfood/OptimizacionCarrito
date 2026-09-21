@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0">
+  <bpmn:collaboration id="Collaboration_1">
+    <bpmn:participant id="Participant_1" name="Venta de comida con pedidos anticipados y turnos (TO-BE)" processRef="Process_1" />
+  </bpmn:collaboration>
+  <bpmn:process id="Process_1" isExecutable="false">
+    <bpmn:laneSet id="LaneSet_1">
+      <bpmn:lane id="Lane_est" name="Estudiante">
+        <bpmn:flowNodeRef>Ev_inicio</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_seleccionar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_pagar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_retirar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Ev_fin</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_sis" name="Sistema de turnos">
+        <bpmn:flowNodeRef>Tb_verificar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Gw_stock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_sinstock</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_registrar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_turno</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_notificar_v</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_avisar</bpmn:flowNodeRef>
+      </bpmn:lane>
+      <bpmn:lane id="Lane_ven" name="Vendedor del carrito">
+        <bpmn:flowNodeRef>Tb_preparar</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_listo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_entrega</bpmn:flowNodeRef>
+      </bpmn:lane>
+    </bpmn:laneSet>
+    <bpmn:startEvent id="Ev_inicio" name="Decide comprar durante la clase">
+      <bpmn:outgoing>Fb_01</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:userTask id="Tb_seleccionar" name="Seleccionar productos en la app">
+      <bpmn:incoming>Fb_01</bpmn:incoming>
+      <bpmn:incoming>Fb_06</bpmn:incoming>
+      <bpmn:outgoing>Fb_02</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Tb_verificar" name="Verificar stock disponible en tiempo real">
+      <bpmn:incoming>Fb_02</bpmn:incoming>
+      <bpmn:outgoing>Fb_03</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:exclusiveGateway id="Gw_stock" name="¿Hay stock suficiente?">
+      <bpmn:incoming>Fb_03</bpmn:incoming>
+      <bpmn:outgoing>Fb_04</bpmn:outgoing>
+      <bpmn:outgoing>Fb_05</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:serviceTask id="Tb_sinstock" name="Informar productos sin stock y sugerir alternativas">
+      <bpmn:incoming>Fb_05</bpmn:incoming>
+      <bpmn:outgoing>Fb_06</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Tb_pagar" name="Confirmar el pedido y pagar en línea">
+      <bpmn:incoming>Fb_04</bpmn:incoming>
+      <bpmn:outgoing>Fb_07</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Tb_registrar" name="Registrar el pedido y descontar el stock">
+      <bpmn:incoming>Fb_07</bpmn:incoming>
+      <bpmn:outgoing>Fb_08</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Tb_turno" name="Asignar número de turno y hora estimada">
+      <bpmn:incoming>Fb_08</bpmn:incoming>
+      <bpmn:outgoing>Fb_09</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:serviceTask id="Tb_notificar_v" name="Enviar el pedido a la cola del vendedor">
+      <bpmn:incoming>Fb_09</bpmn:incoming>
+      <bpmn:outgoing>Fb_10</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:manualTask id="Tb_preparar" name="Preparar el pedido según la cola de turnos">
+      <bpmn:incoming>Fb_10</bpmn:incoming>
+      <bpmn:outgoing>Fb_11</bpmn:outgoing>
+    </bpmn:manualTask>
+    <bpmn:userTask id="Tb_listo" name="Marcar el pedido como listo">
+      <bpmn:incoming>Fb_11</bpmn:incoming>
+      <bpmn:outgoing>Fb_12</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:serviceTask id="Tb_avisar" name="Notificar al estudiante que su turno está listo">
+      <bpmn:incoming>Fb_12</bpmn:incoming>
+      <bpmn:outgoing>Fb_13</bpmn:outgoing>
+    </bpmn:serviceTask>
+    <bpmn:userTask id="Tb_retirar" name="Retirar el pedido mostrando su turno">
+      <bpmn:incoming>Fb_13</bpmn:incoming>
+      <bpmn:outgoing>Fb_14</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:userTask id="Tb_entrega" name="Confirmar la entrega en el sistema">
+      <bpmn:incoming>Fb_14</bpmn:incoming>
+      <bpmn:outgoing>Fb_15</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:endEvent id="Ev_fin" name="Pedido entregado sin fila">
+      <bpmn:incoming>Fb_15</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Fb_01" sourceRef="Ev_inicio" targetRef="Tb_seleccionar" />
+    <bpmn:sequenceFlow id="Fb_02" sourceRef="Tb_seleccionar" targetRef="Tb_verificar" />
+    <bpmn:sequenceFlow id="Fb_03" sourceRef="Tb_verificar" targetRef="Gw_stock" />
+    <bpmn:sequenceFlow id="Fb_04" name="Sí" sourceRef="Gw_stock" targetRef="Tb_pagar" />
+    <bpmn:sequenceFlow id="Fb_05" name="No" sourceRef="Gw_stock" targetRef="Tb_sinstock" />
+    <bpmn:sequenceFlow id="Fb_06" name="Reintentar" sourceRef="Tb_sinstock" targetRef="Tb_seleccionar" />
+    <bpmn:sequenceFlow id="Fb_07" sourceRef="Tb_pagar" targetRef="Tb_registrar" />
+    <bpmn:sequenceFlow id="Fb_08" sourceRef="Tb_registrar" targetRef="Tb_turno" />
+    <bpmn:sequenceFlow id="Fb_09" sourceRef="Tb_turno" targetRef="Tb_notificar_v" />
+    <bpmn:sequenceFlow id="Fb_10" sourceRef="Tb_notificar_v" targetRef="Tb_preparar" />
+    <bpmn:sequenceFlow id="Fb_11" sourceRef="Tb_preparar" targetRef="Tb_listo" />
+    <bpmn:sequenceFlow id="Fb_12" sourceRef="Tb_listo" targetRef="Tb_avisar" />
+    <bpmn:sequenceFlow id="Fb_13" sourceRef="Tb_avisar" targetRef="Tb_retirar" />
+    <bpmn:sequenceFlow id="Fb_14" sourceRef="Tb_retirar" targetRef="Tb_entrega" />
+    <bpmn:sequenceFlow id="Fb_15" sourceRef="Tb_entrega" targetRef="Ev_fin" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
+      <bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true">
+        <dc:Bounds x="140" y="80" width="2180" height="680" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_est_di" bpmnElement="Lane_est" isHorizontal="true">
+        <dc:Bounds x="170" y="80" width="2150" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_sis_di" bpmnElement="Lane_sis" isHorizontal="true">
+        <dc:Bounds x="170" y="280" width="2150" height="280" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_ven_di" bpmnElement="Lane_ven" isHorizontal="true">
+        <dc:Bounds x="170" y="560" width="2150" height="200" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Ev_inicio_di" bpmnElement="Ev_inicio">
+        <dc:Bounds x="260" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="218" y="204" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_seleccionar_di" bpmnElement="Tb_seleccionar">
+        <dc:Bounds x="340" y="140" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_verificar_di" bpmnElement="Tb_verificar">
+        <dc:Bounds x="470" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Gw_stock_di" bpmnElement="Gw_stock" isMarkerVisible="true">
+        <dc:Bounds x="660" y="335" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="625" y="391" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_sinstock_di" bpmnElement="Tb_sinstock">
+        <dc:Bounds x="620" y="450" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_pagar_di" bpmnElement="Tb_pagar">
+        <dc:Bounds x="760" y="140" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_registrar_di" bpmnElement="Tb_registrar">
+        <dc:Bounds x="930" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_turno_di" bpmnElement="Tb_turno">
+        <dc:Bounds x="1100" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_notificar_v_di" bpmnElement="Tb_notificar_v">
+        <dc:Bounds x="1270" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_preparar_di" bpmnElement="Tb_preparar">
+        <dc:Bounds x="1440" y="620" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_listo_di" bpmnElement="Tb_listo">
+        <dc:Bounds x="1610" y="620" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_avisar_di" bpmnElement="Tb_avisar">
+        <dc:Bounds x="1780" y="320" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_retirar_di" bpmnElement="Tb_retirar">
+        <dc:Bounds x="1950" y="140" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Tb_entrega_di" bpmnElement="Tb_entrega">
+        <dc:Bounds x="1950" y="620" width="130" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Ev_fin_di" bpmnElement="Ev_fin">
+        <dc:Bounds x="2160" y="162" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="2118" y="204" width="120" height="30" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Fb_01_di" bpmnElement="Fb_01">
+        <di:waypoint x="296" y="180" />
+        <di:waypoint x="340" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_02_di" bpmnElement="Fb_02">
+        <di:waypoint x="470" y="180" />
+        <di:waypoint x="470" y="180" />
+        <di:waypoint x="470" y="360" />
+        <di:waypoint x="470" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_03_di" bpmnElement="Fb_03">
+        <di:waypoint x="600" y="360" />
+        <di:waypoint x="660" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_04_di" bpmnElement="Fb_04">
+        <di:waypoint x="710" y="360" />
+        <di:waypoint x="735" y="360" />
+        <di:waypoint x="735" y="180" />
+        <di:waypoint x="760" y="180" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="739" y="162" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_05_di" bpmnElement="Fb_05">
+        <di:waypoint x="685" y="385" />
+        <di:waypoint x="685" y="430" />
+        <di:waypoint x="685" y="430" />
+        <di:waypoint x="685" y="450" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="689" y="412" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_06_di" bpmnElement="Fb_06">
+        <di:waypoint x="685" y="530" />
+        <di:waypoint x="685" y="575" />
+        <di:waypoint x="405" y="575" />
+        <di:waypoint x="405" y="220" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="409" y="557" width="40" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_07_di" bpmnElement="Fb_07">
+        <di:waypoint x="890" y="180" />
+        <di:waypoint x="910" y="180" />
+        <di:waypoint x="910" y="360" />
+        <di:waypoint x="930" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_08_di" bpmnElement="Fb_08">
+        <di:waypoint x="1060" y="360" />
+        <di:waypoint x="1100" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_09_di" bpmnElement="Fb_09">
+        <di:waypoint x="1230" y="360" />
+        <di:waypoint x="1270" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_10_di" bpmnElement="Fb_10">
+        <di:waypoint x="1400" y="360" />
+        <di:waypoint x="1420" y="360" />
+        <di:waypoint x="1420" y="660" />
+        <di:waypoint x="1440" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_11_di" bpmnElement="Fb_11">
+        <di:waypoint x="1570" y="660" />
+        <di:waypoint x="1610" y="660" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_12_di" bpmnElement="Fb_12">
+        <di:waypoint x="1740" y="660" />
+        <di:waypoint x="1760" y="660" />
+        <di:waypoint x="1760" y="360" />
+        <di:waypoint x="1780" y="360" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_13_di" bpmnElement="Fb_13">
+        <di:waypoint x="1910" y="360" />
+        <di:waypoint x="1930" y="360" />
+        <di:waypoint x="1930" y="180" />
+        <di:waypoint x="1950" y="180" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_14_di" bpmnElement="Fb_14">
+        <di:waypoint x="2015" y="220" />
+        <di:waypoint x="2015" y="600" />
+        <di:waypoint x="2015" y="600" />
+        <di:waypoint x="2015" y="620" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Fb_15_di" bpmnElement="Fb_15">
+        <di:waypoint x="2080" y="660" />
+        <di:waypoint x="2120" y="660" />
+        <di:waypoint x="2120" y="180" />
+        <di:waypoint x="2160" y="180" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
