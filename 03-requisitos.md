@@ -4,7 +4,7 @@
 
 > Los requisitos se clasifican en dos ejes: **producto vs. proyecto** y **funcional vs. no funcional**.
 >
-> - Los de **producto** describen lo que TurnoCarrito debe hacer o cumplir. Los de **proyecto** son restricciones sobre cómo el equipo desarrolla y entrega el sistema, y no son verificables sobre el producto en operación.
+> - Los de **producto** describen lo que OptimizacionCarrito debe hacer o cumplir. Los de **proyecto** son restricciones sobre cómo el equipo desarrolla y entrega el sistema, y no son verificables sobre el producto en operación.
 > - Los **funcionales** describen un comportamiento observable del sistema. Los **no funcionales** describen una propiedad de calidad con la que ese comportamiento debe cumplirse.
 
 Cada requisito de producto se asocia a una actividad que cambia del AS-IS al TO-BE, según la tabla de [`02-rediseno-to-be.md`](./02-rediseno-to-be.md#actividades-que-cambian-del-as-is-al-to-be).
