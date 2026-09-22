@@ -4,12 +4,13 @@
 
 Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver [`02-rediseno-to-be.md`](./02-rediseno-to-be.md#actividades-que-cambian-del-as-is-al-to-be)) y a los requisitos de [`03-requisitos.md`](./03-requisitos.md).
 
+> 💡 Tip: usa el ícono de esquema (☰) arriba a la derecha del archivo en GitHub para saltar directo a cualquier historia.
+
 ---
 
-### 🎓 Estudiante
+## 🎓 Estudiante
 
-<details open>
-<summary><strong>HU-01 · Ver la disponibilidad real antes de salir de clase</strong></summary>
+#### HU-01: Ver la disponibilidad real antes de salir de clase
 
 > Como **estudiante**, quiero **ver qué productos tiene disponibles el carrito y cuántas unidades quedan**, para **decidir si me conviene comprar sin caminar hasta allá a averiguarlo**.
 
@@ -21,10 +22,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Si otro estudiante confirma una compra, la disponibilidad se actualiza dentro de 5 segundos sin recargar manualmente.
 - [ ] Si el carrito no ha abierto su jornada, el catálogo indica que el punto de venta está cerrado.
 
-</details>
-
-<details open>
-<summary><strong>HU-02 · Armar el pedido desde la sala de clases</strong></summary>
+#### HU-02: Armar el pedido desde la sala de clases
 
 > Como **estudiante**, quiero **seleccionar varios productos con sus cantidades en la app**, para **dejar mi pedido listo mientras todavía estoy en clase**.
 
@@ -37,10 +35,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Si un producto de mi pedido se agota mientras lo armo, el sistema avisa y sugiere alternativas de la misma categoría.
 - [ ] El flujo completo, desde abrir la app hasta llegar a pago, no supera las 6 interacciones.
 
-</details>
-
-<details open>
-<summary><strong>HU-03 · Pagar en línea y recibir un turno</strong></summary>
+#### HU-03: Pagar en línea y recibir un turno
 
 > Como **estudiante**, quiero **pagar mi pedido en línea y recibir un número de turno con hora estimada de retiro**, para **saber cuándo pasar a buscarlo sin hacer fila**.
 
@@ -53,10 +48,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El número de turno queda accesible en la app hasta que el pedido es retirado.
 - [ ] El sistema no almacena datos de la tarjeta usada.
 
-</details>
-
-<details open>
-<summary><strong>HU-04 · No perder una unidad ya pagada por otro pedido simultáneo</strong></summary>
+#### HU-04: No perder una unidad ya pagada por otro pedido simultáneo
 
 > Como **estudiante**, quiero **que las unidades de mi pedido queden reservadas mientras completo el pago**, para **no perder el producto frente a otro pedido hecho al mismo tiempo**.
 
@@ -67,10 +59,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Si el pago no se confirma dentro de 3 minutos, la reserva se libera y las unidades vuelven al stock.
 - [ ] Dos pedidos concurrentes sobre la última unidad de un producto no pueden confirmarse ambos: uno se confirma, el otro recibe aviso de producto agotado.
 
-</details>
-
-<details open>
-<summary><strong>HU-07 · Retirar el pedido presentando el turno</strong></summary>
+#### HU-07: Retirar el pedido presentando el turno
 
 > Como **estudiante**, quiero **retirar mi pedido mostrando mi número de turno**, para **llevarme lo que pagué sin repetir el pedido ni volver a hacer fila**.
 
@@ -82,14 +71,11 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Un turno ya entregado no puede volver a confirmarse.
 - [ ] Al confirmarse la entrega, el pedido queda cerrado y desaparece de la cola de pendientes.
 
-</details>
-
 ---
 
-### 🧑‍🍳 Vendedor del carrito
+## 🧑‍🍳 Vendedor del carrito
 
-<details open>
-<summary><strong>HU-05 · Recibir los pedidos en una cola ordenada</strong></summary>
+#### HU-05: Recibir los pedidos en una cola ordenada
 
 > Como **vendedor**, quiero **ver los pedidos pagados en una cola ordenada por turno con su detalle**, para **preparar por adelantado y no depender de que el estudiante esté frente a mí**.
 
@@ -101,10 +87,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] La cola distingue visualmente pendientes, listos para retiro y entregados.
 - [ ] Si el dispositivo pierde conexión, el vendedor sigue viendo la cola cargada y los cambios se sincronizan al recuperarla.
 
-</details>
-
-<details open>
-<summary><strong>HU-06 · Avisar al estudiante que su pedido está listo</strong></summary>
+#### HU-06: Avisar al estudiante que su pedido está listo
 
 > Como **vendedor**, quiero **marcar un pedido como listo y que el estudiante sea notificado automáticamente**, para **no tener gente esperando en el mesón mientras preparo**.
 
@@ -116,10 +99,7 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El estado cambia a "listo para retiro" tanto en la app del estudiante como en la cola del vendedor.
 - [ ] Si la notificación no puede entregarse, el estado sigue visible en la app al abrirla.
 
-</details>
-
-<details open>
-<summary><strong>HU-08 · Cargar el stock de la jornada</strong></summary>
+#### HU-08: Cargar el stock de la jornada
 
 > Como **vendedor**, quiero **cargar al inicio del día las unidades que traigo de cada producto y poder corregirlas durante la jornada**, para **que lo que ven los estudiantes sea lo que realmente tengo**.
 
@@ -131,14 +111,11 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Un ajuste que deja el stock por debajo de lo ya comprometido por pedidos pagados es rechazado, con el detalle de los pedidos afectados.
 - [ ] Al cerrar la jornada, los turnos se reinician para el día siguiente.
 
-</details>
-
 ---
 
-### 📊 Encargado del carrito
+## 📊 Encargado del carrito
 
-<details open>
-<summary><strong>HU-09 · Saber qué se vendió y qué no se pudo vender</strong></summary>
+#### HU-09: Saber qué se vendió y qué no se pudo vender
 
 > Como **encargado**, quiero **un reporte de la jornada con las ventas por producto y los pedidos rechazados por falta de stock**, para **decidir cuánto reponer al día siguiente**.
 
@@ -150,8 +127,3 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El reporte indica la distribución de pedidos por franja horaria.
 - [ ] El reporte puede consultarse por jornada y por punto de venta.
 
-</details>
-
----
-
-<sub>💡 Los checkboxes son de referencia visual en este documento — no reemplazan el seguimiento en GitHub Issues/Project durante el desarrollo (ver nota en el README sobre por qué las historias no viven directamente como issues en esta entrega).</sub>
