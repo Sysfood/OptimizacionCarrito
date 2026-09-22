@@ -29,5 +29,5 @@ El carrito de comida ubicado en el acceso de la universidad concentra toda su de
 ---
 
 <div align="center">
-<sub>Proyecto académico — CIN 324, Ingeniería de Requisitos</sub>
+<sub>Proyecto académico — CIN 324, Metologia </sub>
 </div>
