@@ -22,6 +22,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Si otro estudiante confirma una compra, la disponibilidad se actualiza dentro de 5 segundos sin recargar manualmente.
 - [ ] Si el carrito no ha abierto su jornada, el catálogo indica que el punto de venta está cerrado.
 
+---
+
 #### HU-02: Armar el pedido desde la sala de clases
 
 > Como **estudiante**, quiero **seleccionar varios productos con sus cantidades en la app**, para **dejar mi pedido listo mientras todavía estoy en clase**.
@@ -34,6 +36,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Si intento pedir más unidades de las disponibles, el sistema lo impide e indica el máximo permitido.
 - [ ] Si un producto de mi pedido se agota mientras lo armo, el sistema avisa y sugiere alternativas de la misma categoría.
 - [ ] El flujo completo, desde abrir la app hasta llegar a pago, no supera las 6 interacciones.
+
+---
 
 #### HU-03: Pagar en línea y recibir un turno
 
@@ -48,6 +52,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El número de turno queda accesible en la app hasta que el pedido es retirado.
 - [ ] El sistema no almacena datos de la tarjeta usada.
 
+---
+
 #### HU-04: No perder una unidad ya pagada por otro pedido simultáneo
 
 > Como **estudiante**, quiero **que las unidades de mi pedido queden reservadas mientras completo el pago**, para **no perder el producto frente a otro pedido hecho al mismo tiempo**.
@@ -58,6 +64,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] Al iniciar el pago, las unidades dejan de estar disponibles para otros estudiantes.
 - [ ] Si el pago no se confirma dentro de 3 minutos, la reserva se libera y las unidades vuelven al stock.
 - [ ] Dos pedidos concurrentes sobre la última unidad de un producto no pueden confirmarse ambos: uno se confirma, el otro recibe aviso de producto agotado.
+
+---
 
 #### HU-07: Retirar el pedido presentando el turno
 
@@ -87,6 +95,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] La cola distingue visualmente pendientes, listos para retiro y entregados.
 - [ ] Si el dispositivo pierde conexión, el vendedor sigue viendo la cola cargada y los cambios se sincronizan al recuperarla.
 
+---
+
 #### HU-06: Avisar al estudiante que su pedido está listo
 
 > Como **vendedor**, quiero **marcar un pedido como listo y que el estudiante sea notificado automáticamente**, para **no tener gente esperando en el mesón mientras preparo**.
@@ -98,6 +108,8 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El estudiante recibe la notificación dentro de 10 segundos desde esa acción.
 - [ ] El estado cambia a "listo para retiro" tanto en la app del estudiante como en la cola del vendedor.
 - [ ] Si la notificación no puede entregarse, el estado sigue visible en la app al abrirla.
+
+---
 
 #### HU-08: Cargar el stock de la jornada
 
@@ -126,4 +138,3 @@ Cada historia está asociada a una actividad que cambia del AS-IS al TO-BE (ver 
 - [ ] El reporte incluye la cantidad de pedidos no confirmados por falta de stock, desglosada por producto.
 - [ ] El reporte indica la distribución de pedidos por franja horaria.
 - [ ] El reporte puede consultarse por jornada y por punto de venta.
-
