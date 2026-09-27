@@ -10,6 +10,15 @@ Este README funciona como guía de lectura de la entrega. Cada apartado enlaza a
 
 > **Alcance de la rama:** el aporte central corresponde a la [clasificación de requisitos](./03-requisitos.md) y las [historias de usuario](./04-historias-usuario.md). Se incluyen el [proceso AS-IS](./01-proceso-as-is.md) y la [propuesta TO-BE](./02-rediseno-to-be.md) como antecedentes para comprender y seguir la trazabilidad del análisis.
 
+## Integrantes y aportes
+
+| Integrante | Aportes |
+|---|---|
+| Martín Méndez | [Diagramas](https://github.com/Sysfood/OptimizacionCarrito/tree/IngReq-Entrega-1/diagramas) · [Proceso AS-IS](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/01-proceso-as-is.md) · [Rediseño TO-BE](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/02-rediseno-to-be.md) |
+| Vicente Fernández Simonetti | [Atributos de calidad](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/06-atributos-calidad.md) |
+| Joaquín Rojas | [Elicitación](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/05-Elicitacion.md) · [Evidencias](https://github.com/Sysfood/OptimizacionCarrito/tree/IngReq-Entrega-1/Evidencias) |
+| Joaquín López | [Requisitos](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/03-requisitos.md) · [Historias de usuario](https://github.com/Sysfood/OptimizacionCarrito/blob/IngReq-Entrega-1/04-historias-usuario.md) |
+
 ## Índice de navegación
 
 | Apartado | Acceso |
