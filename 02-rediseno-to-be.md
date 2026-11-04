@@ -74,7 +74,7 @@ Las heurísticas citadas corresponden al catálogo de mejores prácticas de redi
 - **Objetivo o mejora que resuelve:** P6 — el proceso no escala porque todo su volumen se apoya en trabajo humano.
 - **Efecto esperado:** **Flexibilidad** — el mismo proceso soporta uno o varios puntos de venta agregando configuración y no personas; el vendedor puede operar desde su celular aunque la conexión sea intermitente. **Costo** — el costo marginal de cada pedido adicional tiende a cero en las actividades automatizadas.
 - **Ajuste por elicitación:** hoy el vendedor resolvería el doble de demanda contratando personal (H7). La plataforma se propone como alternativa a esa contratación. Su principal preocupación es el **costo de empaque** que traerían los pedidos anticipados; no es una actividad del proceso, pero queda como riesgo a considerar en los requisitos.
-- **Actividades TO-BE resultantes:** transversal. Es la plataforma que soporta AC-01 a AC-08. En el diagrama no tiene carril propio: sus tareas automáticas se ubican en el carril del vendedor, que las supervisa.
+- **Actividades TO-BE resultantes:** transversal. Es la plataforma que soporta AC-01 a AC-08; su carril en el diagrama es *Sistema de turnos*.
 
 ## Diagrama TO-BE
 
@@ -85,37 +85,35 @@ Archivo fuente: [`./diagramas/to-be.bpmn`](./diagramas/to-be.bpmn)
 ### Descripción del flujo
 
 1. El proceso comienza cuando el estudiante **decide comprar durante la clase** y **selecciona productos en la app**.
-2. La app **verifica el stock disponible en tiempo real**, bajo supervisión del vendedor. Si no hay stock suficiente, **informa los productos sin stock y sugiere alternativas**, y el estudiante vuelve a seleccionar (*Reintentar*).
+2. El sistema **verifica el stock disponible en tiempo real**. Si no hay stock suficiente, **informa los productos sin stock y sugiere alternativas**, y el estudiante vuelve a seleccionar (*Reintentar*).
 3. Con stock suficiente, el estudiante **confirma el pedido y paga en línea**. Mientras el pago está en curso, las unidades quedan reservadas para ese pedido.
 4. Compuerta **¿Pago confirmado?**
-   - **No / expira 3 min:** la app **libera las unidades reservadas** y el estudiante puede reintentar el pago sin rearmar el pedido.
-   - **Sí:** la app **registra el pedido y descuenta el stock**, **asigna número de turno y hora estimada** y **envía el pedido a la cola del vendedor**.
-5. El vendedor **prepara el pedido según la cola de turnos** y lo **marca como listo**; la app **notifica al estudiante que su turno está listo**.
+   - **No / expira 3 min:** el sistema **libera las unidades reservadas** y el estudiante puede reintentar el pago sin rearmar el pedido.
+   - **Sí:** el sistema **registra el pedido y descuenta el stock**, **asigna número de turno y hora estimada** y **envía el pedido a la cola del vendedor**.
+5. El vendedor **prepara el pedido según la cola de turnos** y lo **marca como listo**; el sistema **notifica al estudiante que su turno está listo**.
 6. El estudiante **retira el pedido mostrando su turno**, el vendedor **confirma la entrega en el sistema** y el proceso termina en **Pedido entregado sin fila**.
 
-Comparado con el AS-IS, el vendedor deja de revisar el stock, tomar el pedido, cobrar y registrar la venta a mano. Conserva la preparación, dos acciones breves en el panel (marcar como listo y confirmar la entrega) y la supervisión de las tareas que la app ejecuta sola.
-
-El diagrama no incluye un carril para el sistema. Las tareas automáticas (con engranaje) se ubican en el carril *Vendedor del carrito (supervisa la app)*, porque cada una queda bajo la responsabilidad de una persona: el vendedor ve en su panel el stock, la cola de turnos y los avisos enviados, y puede corregirlos si algo falla (por ejemplo, ajustar el stock o reenviar un aviso).
+Comparado con el AS-IS, el vendedor deja de revisar el stock, tomar el pedido, cobrar y registrar la venta. Solo conserva la preparación y dos acciones breves en el panel (marcar como listo y confirmar la entrega).
 
 ### Tipos de tarea usados en el diagrama
 
 | Tarea | Carril | Tipo BPMN | Por qué |
 |---|---|---|---|
 | Seleccionar productos en la app | Estudiante | User Task | La ejecuta el estudiante con apoyo del sistema. |
-| Verificar stock disponible en tiempo real | Vendedor (supervisa) | Service Task | La app la ejecuta automáticamente contra el inventario que declara y ajusta el vendedor. |
-| Informar productos sin stock y sugerir alternativas | Vendedor (supervisa) | Service Task | Respuesta automática de la app; las alternativas las define el vendedor. |
+| Verificar stock disponible en tiempo real | Sistema de turnos | Service Task | La ejecuta el sistema automáticamente contra el inventario. |
+| Informar productos sin stock y sugerir alternativas | Sistema de turnos | Service Task | Respuesta automática del sistema. |
 | Confirmar el pedido y pagar en línea | Estudiante | User Task | La ejecuta el estudiante con apoyo del sistema y de la pasarela de pago. |
-| Liberar las unidades reservadas | Vendedor (supervisa) | Service Task | Si el pago falla o expira, la app devuelve automáticamente las unidades al stock; el vendedor ve el stock actualizado. |
-| Registrar el pedido y descontar el stock | Vendedor (supervisa) | Service Task | Transacción automática; el vendedor la revisa en el panel y puede corregir el stock. |
-| Asignar número de turno y hora estimada | Vendedor (supervisa) | Service Task | Cálculo automático a partir de la cola vigente y de los tiempos de preparación; el vendedor ve la cola y puede reordenarla. |
-| Enviar el pedido a la cola del vendedor | Vendedor (supervisa) | Service Task | Notificación automática al panel del vendedor. |
+| Liberar las unidades reservadas | Sistema de turnos | Service Task | Si el pago falla o expira, el sistema devuelve automáticamente las unidades al stock. |
+| Registrar el pedido y descontar el stock | Sistema de turnos | Service Task | Transacción automática, sin intervención humana. |
+| Asignar número de turno y hora estimada | Sistema de turnos | Service Task | Cálculo automático a partir de la cola vigente y de los tiempos de preparación. |
+| Enviar el pedido a la cola del vendedor | Sistema de turnos | Service Task | Notificación automática al panel del vendedor. |
 | Preparar el pedido según la cola de turnos | Vendedor | Manual Task | Trabajo físico del vendedor; el sistema le indica el orden, pero no lo asiste en la preparación. |
 | Marcar el pedido como listo | Vendedor | User Task | La ejecuta el vendedor en el panel del sistema. |
-| Notificar al estudiante que su turno está listo | Vendedor (supervisa) | Service Task | Envío automático que se dispara cuando el vendedor marca el pedido como listo; puede reenviarlo. |
+| Notificar al estudiante que su turno está listo | Sistema de turnos | Service Task | Envío automático de la notificación. |
 | Retirar el pedido mostrando su turno | Estudiante | User Task | El estudiante presenta su turno desde la app. |
 | Confirmar la entrega en el sistema | Vendedor | User Task | La ejecuta el vendedor cerrando el pedido en el sistema. |
 
-En el AS-IS la tecnología existía, pero solo como User Tasks que el vendedor ejecuta venta a venta. El TO-BE automatiza las actividades que no requieren juicio humano, pero no las deja sin responsable: se ubican en el carril del vendedor, que las supervisa. Solo queda una Manual Task: la preparación física del pedido.
+En el AS-IS la tecnología existía, pero solo como User Tasks que el vendedor ejecuta venta a venta. El TO-BE concentra en el carril *Sistema de turnos* todas las actividades que no requieren juicio humano. Solo queda una Manual Task: la preparación física del pedido.
 
 ### Actividades de soporte fuera del flujo modelado
 
@@ -132,12 +130,12 @@ El diagrama modela un pedido individual. Algunas actividades ocurren una vez por
 | ID | Actividad en el AS-IS | Actividad en el TO-BE | Qué cambia |
 |---|---|---|---|
 | AC-01 | Esperar en la fila *(Manual, Estudiante)* | Seleccionar productos en la app *(User, Estudiante)* | La espera presencial se reemplaza por la selección remota del pedido durante la clase. El estudiante deja de ocupar tiempo físico en la fila. |
-| AC-02 | Revisar el stock en el software de ventas *(User, Vendedor)* + Informar que está agotado y ofrecer una alternativa *(Manual, Vendedor)* | Verificar stock disponible en tiempo real *(Service, Vendedor supervisa)* + Informar productos sin stock y sugerir alternativas *(Service, Vendedor supervisa)* | La verificación deja de hacerla el vendedor al final del recorrido y pasa a ser una consulta automática al inicio, antes de que el estudiante se desplace. La alternativa que hoy ofrece el vendedor en persona la sugiere el sistema. |
+| AC-02 | Revisar el stock en el software de ventas *(User, Vendedor)* + Informar que está agotado y ofrecer una alternativa *(Manual, Vendedor)* | Verificar stock disponible en tiempo real *(Service, Sistema)* + Informar productos sin stock y sugerir alternativas *(Service, Sistema)* | La verificación deja de hacerla el vendedor al final del recorrido y pasa a ser una consulta automática al inicio, antes de que el estudiante se desplace. La alternativa que hoy ofrece el vendedor en persona la sugiere el sistema. |
 | AC-03 | Indicar el pedido al vendedor *(Manual, Estudiante)* + Cobrar el pedido *(User, Vendedor)* | Confirmar el pedido y pagar en línea *(User, Estudiante)* | La toma de pedido y el cobro dejan de ocupar al vendedor y se trasladan al estudiante, en un solo paso digital. |
-| AC-04 | Registrar la venta en el software de ventas *(User, Vendedor)* | Registrar el pedido y descontar el stock *(Service, Vendedor supervisa)* + Liberar las unidades reservadas *(Service, Vendedor supervisa)* | La venta deja de digitarla el vendedor y se registra sola en el momento del pago, actualizando el inventario que ve el estudiante. Si el pago falla o expira, las unidades reservadas vuelven al stock. |
-| AC-05 | *(no existe en el AS-IS)* | Asignar número de turno y hora estimada *(Service, Vendedor supervisa)* | Se introduce un turno que identifica el pedido y una hora estimada que desacopla el momento del pedido del momento del retiro. |
-| AC-06 | Preparar el pedido *(Manual, Vendedor)* | Enviar el pedido a la cola del vendedor *(Service, Vendedor supervisa)* + Preparar el pedido según la cola de turnos *(Manual, Vendedor)* | La preparación deja de iniciarse con el estudiante presente y pasa a ordenarse por una cola que el vendedor recibe antes del término del bloque. |
-| AC-07 | *(no existe en el AS-IS)* | Marcar el pedido como listo *(User, Vendedor)* + Notificar al estudiante que su turno está listo *(Service, Vendedor supervisa)* | Se introduce un aviso push: el estudiante ya no consulta presencialmente el estado de su pedido. |
+| AC-04 | Registrar la venta en el software de ventas *(User, Vendedor)* | Registrar el pedido y descontar el stock *(Service, Sistema)* + Liberar las unidades reservadas *(Service, Sistema)* | La venta deja de digitarla el vendedor y se registra sola en el momento del pago, actualizando el inventario que ve el estudiante. Si el pago falla o expira, las unidades reservadas vuelven al stock. |
+| AC-05 | *(no existe en el AS-IS)* | Asignar número de turno y hora estimada *(Service, Sistema)* | Se introduce un turno que identifica el pedido y una hora estimada que desacopla el momento del pedido del momento del retiro. |
+| AC-06 | Preparar el pedido *(Manual, Vendedor)* | Enviar el pedido a la cola del vendedor *(Service, Sistema)* + Preparar el pedido según la cola de turnos *(Manual, Vendedor)* | La preparación deja de iniciarse con el estudiante presente y pasa a ordenarse por una cola que el vendedor recibe antes del término del bloque. |
+| AC-07 | *(no existe en el AS-IS)* | Marcar el pedido como listo *(User, Vendedor)* + Notificar al estudiante que su turno está listo *(Service, Sistema)* | Se introduce un aviso push: el estudiante ya no consulta presencialmente el estado de su pedido. |
 | AC-08 | Recibir el pedido *(Manual, Estudiante)* | Retirar el pedido mostrando su turno *(User, Estudiante)* + Confirmar la entrega en el sistema *(User, Vendedor)* | La entrega pasa a estar verificada contra un turno y queda cerrada en el sistema, lo que permite trazar el pedido y detectar pedidos no retirados. |
 
 **Actividad del AS-IS que se mantiene sin cambio:** "Caminar hasta el carrito" sigue existiendo, pero ocurre solo después de la notificación y ya no termina en una fila. Por eso no se modela como tarea en el TO-BE ni origina requisitos. La compuerta "¿Acepta la alternativa?" del AS-IS tampoco se modela aparte: en el TO-BE esa decisión ocurre dentro de "Seleccionar productos en la app", cuando el estudiante vuelve a elegir.

@@ -73,7 +73,7 @@ El [documento TO-BE](./02-rediseno-to-be.md) describe las mejoras propuestas, la
 | Comunicación del estado | Aviso al estudiante cuando el pedido está listo. | [Iniciativa 5](./02-rediseno-to-be.md) |
 | Soporte tecnológico | Plataforma propuesta para apoyar el proceso. | [Iniciativa 6](./02-rediseno-to-be.md) |
 | Comparación de actividades | Correspondencia AC-01–AC-08 entre el proceso actual y el propuesto. | [Tabla de actividades](./02-rediseno-to-be.md) |
-| Diagrama del proceso propuesto | Flujo previsto entre estudiante y vendedor; las tareas automáticas de la app quedan bajo supervisión del vendedor. | [Ver PNG](./diagramas/to-be.png) · [Abrir BPMN](./diagramas/to-be.bpmn) |
+| Diagrama del proceso propuesto | Flujo previsto de interacción entre estudiante, vendedor y sistema. | [Ver PNG](./diagramas/to-be.png) · [Abrir BPMN](./diagramas/to-be.bpmn) |
 
 ## 5. Clasificación de requisitos
 
