@@ -1,0 +1,46 @@
+@startuml est-01
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+skinparam StateBorderColor #1f4e79
+skinparam StateBackgroundColor #ffffff
+skinparam StateStartColor #3a7d1f
+skinparam StateEndColor #a33122
+title EST-01 — Ciclo de vida de Pedido
+hide empty description
+
+state "Pendiente de pago" as PEN
+state "Pago no realizado" as NOR
+state "En conciliación" as CON
+state "Confirmado" as CNF
+state "En preparación" as PRE
+state "Listo para retiro" as LIS
+state "Entregado" as ENT
+state "Reembolsado" as REM
+
+[*] --> PEN : iniciar pago [hay disponibilidad] / reservar unidades
+PEN --> CNF : pago aprobado [reserva vigente] / consumir reserva, registrar venta, asignar código
+PEN --> NOR : pago rechazado / liberar reserva
+PEN --> NOR : pago cancelado / liberar reserva
+PEN --> NOR : vencimiento de reserva [3 min sin pago aprobado] / liberar reserva
+NOR --> PEN : reintentar pago [hay disponibilidad] / reservar unidades
+NOR --> CON : pago aprobado tardío / registrar pago en conciliación
+NOR --> [*] : descartar pedido
+CON --> CNF : conciliar pago [hay disponibilidad] / consumir unidades, asignar código
+CON --> REM : conciliar pago [sin disponibilidad] / tramitar reembolso
+CNF --> PRE : iniciar preparación
+PRE --> LIS : marcar pedido listo / enviar aviso de pedido listo
+LIS --> ENT : confirmar entrega [código válido] / registrar fecha y hora
+ENT --> [*]
+REM --> [*]
+@enduml

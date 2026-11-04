@@ -1,0 +1,33 @@
+@startuml est-02
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+skinparam StateBorderColor #1f4e79
+skinparam StateBackgroundColor #ffffff
+skinparam StateStartColor #3a7d1f
+skinparam StateEndColor #a33122
+title EST-02 — Ciclo de vida de Reserva
+hide empty description
+
+state "Activa" as ACT
+state "Consumida" as CSM
+state "Liberada" as LIB
+
+[*] --> ACT : iniciar pago [hay unidades vendibles] / apartar unidades
+ACT --> CSM : pago aprobado [reserva vigente] / descontar existencias
+ACT --> LIB : pago rechazado / liberar unidades
+ACT --> LIB : pago cancelado / liberar unidades
+ACT --> LIB : vencimiento de reserva [3 min sin pago aprobado] / liberar unidades
+CSM --> [*]
+LIB --> [*]
+@enduml
