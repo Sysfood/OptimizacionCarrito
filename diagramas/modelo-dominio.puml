@@ -1,0 +1,103 @@
+@startuml modelo-dominio
+title Modelo de dominio - TurnoCarrito
+
+hide circle
+hide methods
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam dpi 160
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 12
+skinparam ArrowFontSize 11
+skinparam class {
+  BackgroundColor #FFFFFF
+  BorderColor #2F5D8A
+  HeaderBackgroundColor #E8F0F8
+}
+skinparam nodesep 40
+skinparam ranksep 55
+
+class Carrito {
+  nombre
+  ubicación
+}
+
+class Jornada {
+  fecha
+  horaApertura
+  horaCierre
+  recepciónDigital
+}
+
+class Producto {
+  nombre
+  precio
+}
+
+class Existencia {
+  unidadesAsignadas
+  unidadesReservadas
+  unidadesConsumidas
+  /unidadesVendibles
+}
+
+class AjusteExistencia {
+  cantidad
+  motivo
+  origen
+  responsable
+  fechaHora
+}
+
+class Cliente {
+  nombre
+  contacto
+}
+
+class Pedido {
+  código
+  estado
+  estimaciónPreparación
+  fechaHoraConfirmación
+  fechaHoraListo
+  fechaHoraEntrega
+  /total
+}
+
+class DetallePedido {
+  cantidad
+  precioUnitario
+}
+
+class Pago {
+  referenciaPasarela
+  monto
+  resultado
+  fechaHora
+}
+
+class Reserva {
+  fechaHoraInicio
+  fechaHoraVencimiento
+  estado
+}
+
+class Aviso {
+  motivo
+  fechaHoraEnvío
+  resultado
+}
+
+Carrito "1" -- "0..*" Jornada : opera >
+Jornada "1" -- "0..*" Existencia : dispone de >
+Producto "1" -- "0..*" Existencia : se controla en >
+Existencia "1" -- "0..*" AjusteExistencia : se corrige con >
+Cliente "1" -- "0..*" Pedido : realiza >
+Jornada "1" -- "0..*" Pedido : recibe >
+Pedido "1" *-- "1..*" DetallePedido : se compone de >
+Producto "1" -- "0..*" DetallePedido : se pide en >
+Pedido "1" -- "0..*" Pago : se paga con >
+Pedido "1" -- "0..*" Reserva : asegura unidades con >
+Pedido "1" -- "0..*" Aviso : genera >
+
+@enduml
