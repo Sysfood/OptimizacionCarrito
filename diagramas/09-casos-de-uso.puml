@@ -1,0 +1,41 @@
+@startuml 09-casos-de-uso
+title Casos de uso de TurnoCarrito
+left to right direction
+skinparam shadowing false
+skinparam packageStyle rectangle
+skinparam defaultFontName Arial
+skinparam ArrowColor #2A7F7F
+skinparam ActorBorderColor #2F5D8A
+skinparam UsecaseBorderColor #2F5D8A
+skinparam UsecaseBackgroundColor #FFFFFF
+skinparam RectangleBorderColor #2F5D8A
+
+actor Estudiante
+actor Vendedor
+actor Encargado
+
+rectangle "TurnoCarrito" {
+  usecase "Consultar catálogo\ny disponibilidad" as CU01
+  usecase "Consultar estado\ndel pedido" as CU07
+  usecase "Crear y pagar pedido" as CU02
+  usecase "Validar retiro y\nregistrar entrega" as CU04
+  usecase "Gestionar preparación y\navisar pedido listo" as CU03
+  usecase "Administrar disponibilidad\ndel canal digital" as CU06
+  usecase "Consultar reporte de\nventas digitales" as CU05
+}
+
+actor "Pasarela de pago" as Pasarela <<sistema externo>>
+actor "Servicio de notificaciones" as Notif <<sistema externo>>
+
+Estudiante --> CU01
+Estudiante --> CU02
+Estudiante --> CU07
+Estudiante --> CU04
+Vendedor --> CU04
+Vendedor --> CU03
+Vendedor --> CU06
+Encargado --> CU05
+
+CU02 --> Pasarela
+CU03 --> Notif
+@enduml
