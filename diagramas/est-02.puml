@@ -1,0 +1,48 @@
+@startuml est-02
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+skinparam StateBorderColor #1f4e79
+skinparam StateBackgroundColor #ffffff
+skinparam StateStartColor #3a7d1f
+skinparam StateEndColor #a33122
+skinparam dpi 160
+skinparam nodesep 70
+skinparam ranksep 90
+skinparam ArrowThickness 1.3
+skinparam StateFontSize 14
+skinparam StateFontStyle bold
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #222222
+skinparam StateBackgroundColor<<ok>> #eef6ea
+skinparam StateBorderColor<<ok>> #3a7d1f
+skinparam StateBackgroundColor<<exc>> #fbf3e6
+skinparam StateBorderColor<<exc>> #8a6508
+skinparam StateBorderThickness 2
+hide stereotype
+title EST-02 — Ciclo de vida de Reserva\n
+hide empty description
+left to right direction
+
+state "Activa" as ACT
+state "Consumida" as CSM <<ok>>
+state "Liberada" as LIB <<exc>>
+state F1 <<end>>
+state F2 <<end>>
+
+[*] --> ACT : iniciar pago\n[hay unidades vendibles]\n/ apartar unidades
+ACT --> CSM : pago aprobado\n[reserva vigente]\n/ descontar existencias
+ACT --> LIB : pago rechazado,\npago cancelado,\nvencimiento de reserva\n/ liberar unidades
+CSM --> F1
+LIB --> F2
+@enduml

@@ -1,0 +1,50 @@
+@startuml dss-02
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+skinparam StateBorderColor #1f4e79
+skinparam StateBackgroundColor #ffffff
+skinparam StateStartColor #3a7d1f
+skinparam StateEndColor #a33122
+title DSS-02 — Avisar que el pedido está listo\n(CU-06 · HU-06)
+
+actor "Vendedor" as VEN
+participant "TurnoCarrito\n<<sistema>>" as SIS
+participant "Servicio de notificaciones\n<<sistema externo>>" as NOT
+actor "Estudiante" as EST
+
+VEN -> SIS : marcar pedido listo (código de pedido)
+
+alt pedido en preparación
+  SIS -> SIS : registrar pedido listo para retiro (fecha y hora)
+  SIS --> VEN : pedido listo para retiro
+  SIS -> NOT : enviar aviso de pedido listo (estudiante, código)
+  NOT -> EST : aviso: tu pedido está listo para retiro
+
+  alt aviso entregado
+    NOT --> SIS : aviso entregado
+  else aviso fallido (sin conexión o sin permisos)
+    NOT --> SIS : aviso fallido
+    SIS -> SIS : registrar fallo del aviso
+    SIS --> VEN : aviso no entregado (estado sigue consultable)
+  end
+
+else pedido pendiente de pago, confirmado o ya entregado
+  SIS --> VEN : transición no permitida (estado vigente)
+end
+
+opt el estudiante consulta su pedido
+  EST -> SIS : consultar estado (código de pedido)
+  SIS --> EST : estado del pedido y detalle
+end
+@enduml

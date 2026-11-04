@@ -1,0 +1,63 @@
+@startuml est-01
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+skinparam StateBorderColor #1f4e79
+skinparam StateBackgroundColor #ffffff
+skinparam StateStartColor #3a7d1f
+skinparam StateEndColor #a33122
+skinparam dpi 160
+skinparam nodesep 70
+skinparam ranksep 90
+skinparam ArrowThickness 1.3
+skinparam StateFontSize 14
+skinparam StateFontStyle bold
+skinparam ArrowFontSize 12
+skinparam ArrowFontColor #222222
+skinparam StateBackgroundColor<<ok>> #eef6ea
+skinparam StateBorderColor<<ok>> #3a7d1f
+skinparam StateBackgroundColor<<exc>> #fbf3e6
+skinparam StateBorderColor<<exc>> #8a6508
+skinparam StateBorderThickness 2
+hide stereotype
+title EST-01 — Ciclo de vida de Pedido\n
+hide empty description
+left to right direction
+
+state "Pendiente de pago" as PEN
+state "Confirmado" as CNF
+state "En preparación" as PRE
+state "Listo para retiro" as LIS
+state "Entregado" as ENT <<ok>>
+state "Pago no realizado" as NOR <<exc>>
+state "En conciliación" as CON <<exc>>
+state "Reembolsado" as REM <<exc>>
+state F1 <<end>>
+state F2 <<end>>
+state F3 <<end>>
+
+[*] --> PEN : iniciar pago\n[hay disponibilidad]\n/ reservar unidades
+PEN --> CNF : pago aprobado\n[reserva vigente]\n/ consumir reserva,\nregistrar venta,\nasignar código
+CNF --> PRE : iniciar preparación
+PRE --> LIS : marcar pedido listo\n/ enviar aviso\nde pedido listo
+LIS --> ENT : confirmar entrega\n[código válido]\n/ registrar fecha y hora
+ENT --> F1
+
+PEN --> NOR : pago rechazado,\npago cancelado,\nvencimiento de reserva\n/ liberar reserva
+NOR --> PEN : reintentar pago\n[hay disponibilidad]\n/ reservar unidades
+NOR --> F2 : descartar pedido
+NOR --> CON : pago aprobado tardío\n/ registrar pago\nen conciliación
+CON --> CNF : conciliar pago\n[hay disponibilidad]\n/ consumir unidades,\nasignar código
+CON --> REM : conciliar pago\n[sin disponibilidad]\n/ tramitar reembolso
+REM --> F3
+@enduml
