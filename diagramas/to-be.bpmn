@@ -115,9 +115,6 @@
     <bpmn:sequenceFlow id="Fb_13" sourceRef="Tb_avisar" targetRef="Tb_retirar" />
     <bpmn:sequenceFlow id="Fb_14" sourceRef="Tb_retirar" targetRef="Tb_entrega" />
     <bpmn:sequenceFlow id="Fb_15" sourceRef="Tb_entrega" targetRef="Ev_fin" />
-    <bpmn:textAnnotation id="Ann_superv">
-      <bpmn:text>Tareas con engranaje: las ejecuta la app TurnoCarrito de forma automática, bajo supervisión del vendedor. Él revisa el stock, la cola de turnos y los avisos, y los corrige si es necesario.</bpmn:text>
-    </bpmn:textAnnotation>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
@@ -192,9 +189,6 @@
         <bpmndi:BPMNLabel>
           <dc:Bounds x="2283" y="204" width="130" height="30" />
         </bpmndi:BPMNLabel>
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Ann_superv_di" bpmnElement="Ann_superv">
-        <dc:Bounds x="212" y="320" width="205" height="130" />
       </bpmndi:BPMNShape>
       <bpmndi:BPMNEdge id="Fb_01_di" bpmnElement="Fb_01" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="296" y="180" />
