@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.20.0">
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:bioc="http://bpmn.io/schema/bpmn/biocolor/1.0" xmlns:color="http://www.omg.org/spec/BPMN/non-normative/color/1.0" id="Definitions_1" targetNamespace="http://bpmn.io/schema/bpmn" exporter="bpmn-js (https://demo.bpmn.io)" exporterVersion="18.31.1">
   <bpmn:collaboration id="Collaboration_1">
     <bpmn:participant id="Participant_1" name="Venta de comida con pedidos anticipados y turnos (TO-BE)" processRef="Process_1" />
   </bpmn:collaboration>
@@ -12,7 +12,7 @@
         <bpmn:flowNodeRef>Tb_retirar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Ev_fin</bpmn:flowNodeRef>
       </bpmn:lane>
-      <bpmn:lane id="Lane_sis" name="Sistema de turnos">
+      <bpmn:lane id="Lane_ven" name="Vendedor del carrito (supervisa la app)">
         <bpmn:flowNodeRef>Tb_verificar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Gw_stock</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Tb_sinstock</bpmn:flowNodeRef>
@@ -21,11 +21,9 @@
         <bpmn:flowNodeRef>Tb_registrar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Tb_turno</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Tb_notificar_v</bpmn:flowNodeRef>
-        <bpmn:flowNodeRef>Tb_avisar</bpmn:flowNodeRef>
-      </bpmn:lane>
-      <bpmn:lane id="Lane_ven" name="Vendedor del carrito">
         <bpmn:flowNodeRef>Tb_preparar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Tb_listo</bpmn:flowNodeRef>
+        <bpmn:flowNodeRef>Tb_avisar</bpmn:flowNodeRef>
         <bpmn:flowNodeRef>Tb_entrega</bpmn:flowNodeRef>
       </bpmn:lane>
     </bpmn:laneSet>
@@ -117,99 +115,102 @@
     <bpmn:sequenceFlow id="Fb_13" sourceRef="Tb_avisar" targetRef="Tb_retirar" />
     <bpmn:sequenceFlow id="Fb_14" sourceRef="Tb_retirar" targetRef="Tb_entrega" />
     <bpmn:sequenceFlow id="Fb_15" sourceRef="Tb_entrega" targetRef="Ev_fin" />
+    <bpmn:textAnnotation id="Ann_superv">
+      <bpmn:text>Tareas con engranaje: las ejecuta la app TurnoCarrito de forma automática, bajo supervisión del vendedor. Él revisa el stock, la cola de turnos y los avisos, y los corrige si es necesario.</bpmn:text>
+    </bpmn:textAnnotation>
   </bpmn:process>
   <bpmndi:BPMNDiagram id="BPMNDiagram_1">
     <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Collaboration_1">
       <bpmndi:BPMNShape id="Participant_1_di" bpmnElement="Participant_1" isHorizontal="true">
-        <dc:Bounds x="140" y="80" width="2300" height="680" />
+        <dc:Bounds x="140" y="80" width="2300" height="520" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_est_di" bpmnElement="Lane_est" isHorizontal="true">
+      <bpmndi:BPMNShape id="Lane_ven_di" bpmnElement="Lane_ven" isHorizontal="true" bioc:stroke="#555555" bioc:fill="#f7f5ee" color:background-color="#f7f5ee" color:border-color="#555555">
+        <dc:Bounds x="170" y="280" width="2270" height="320" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Lane_est_di" bpmnElement="Lane_est" isHorizontal="true" bioc:stroke="#555555" bioc:fill="#f5f7fb" color:background-color="#f5f7fb" color:border-color="#555555">
         <dc:Bounds x="170" y="80" width="2270" height="200" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_sis_di" bpmnElement="Lane_sis" isHorizontal="true">
-        <dc:Bounds x="170" y="280" width="2270" height="280" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Lane_ven_di" bpmnElement="Lane_ven" isHorizontal="true">
-        <dc:Bounds x="170" y="560" width="2270" height="200" />
-      </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Ev_inicio_di" bpmnElement="Ev_inicio">
+      <bpmndi:BPMNShape id="Ev_inicio_di" bpmnElement="Ev_inicio" bioc:stroke="#3a7d1f" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#3a7d1f">
         <dc:Bounds x="260" y="162" width="36" height="36" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="218" y="204" width="120" height="30" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_seleccionar_di" bpmnElement="Tb_seleccionar">
+      <bpmndi:BPMNShape id="Tb_seleccionar_di" bpmnElement="Tb_seleccionar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="340" y="140" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_verificar_di" bpmnElement="Tb_verificar">
+      <bpmndi:BPMNShape id="Tb_verificar_di" bpmnElement="Tb_verificar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="520" y="320" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gw_stock_di" bpmnElement="Gw_stock" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gw_stock_di" bpmnElement="Gw_stock" isMarkerVisible="true" bioc:stroke="#8a6508" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#8a6508">
         <dc:Bounds x="690" y="335" width="50" height="50" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="655" y="298" width="120" height="30" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_sinstock_di" bpmnElement="Tb_sinstock">
+      <bpmndi:BPMNShape id="Tb_sinstock_di" bpmnElement="Tb_sinstock" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="650" y="450" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_pagar_di" bpmnElement="Tb_pagar">
+      <bpmndi:BPMNShape id="Tb_pagar_di" bpmnElement="Tb_pagar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="800" y="140" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Gw_pago_di" bpmnElement="Gw_pago" isMarkerVisible="true">
+      <bpmndi:BPMNShape id="Gw_pago_di" bpmnElement="Gw_pago" isMarkerVisible="true" bioc:stroke="#8a6508" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#8a6508">
         <dc:Bounds x="980" y="335" width="50" height="50" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1030" y="298" width="110" height="30" />
+          <dc:Bounds x="950" y="298" width="110" height="30" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_liberar_di" bpmnElement="Tb_liberar">
+      <bpmndi:BPMNShape id="Tb_liberar_di" bpmnElement="Tb_liberar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="940" y="450" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_registrar_di" bpmnElement="Tb_registrar">
+      <bpmndi:BPMNShape id="Tb_registrar_di" bpmnElement="Tb_registrar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="1090" y="320" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_turno_di" bpmnElement="Tb_turno">
+      <bpmndi:BPMNShape id="Tb_turno_di" bpmnElement="Tb_turno" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="1260" y="320" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_notificar_v_di" bpmnElement="Tb_notificar_v">
+      <bpmndi:BPMNShape id="Tb_notificar_v_di" bpmnElement="Tb_notificar_v" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="1430" y="320" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_preparar_di" bpmnElement="Tb_preparar">
-        <dc:Bounds x="1600" y="620" width="130" height="80" />
+      <bpmndi:BPMNShape id="Tb_preparar_di" bpmnElement="Tb_preparar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
+        <dc:Bounds x="1600" y="450" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_listo_di" bpmnElement="Tb_listo">
-        <dc:Bounds x="1770" y="620" width="130" height="80" />
+      <bpmndi:BPMNShape id="Tb_listo_di" bpmnElement="Tb_listo" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
+        <dc:Bounds x="1770" y="450" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_avisar_di" bpmnElement="Tb_avisar">
+      <bpmndi:BPMNShape id="Tb_avisar_di" bpmnElement="Tb_avisar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="1940" y="320" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_retirar_di" bpmnElement="Tb_retirar">
+      <bpmndi:BPMNShape id="Tb_retirar_di" bpmnElement="Tb_retirar" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
         <dc:Bounds x="2110" y="140" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Tb_entrega_di" bpmnElement="Tb_entrega">
-        <dc:Bounds x="2110" y="620" width="130" height="80" />
+      <bpmndi:BPMNShape id="Tb_entrega_di" bpmnElement="Tb_entrega" bioc:stroke="#1f4e79" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#1f4e79">
+        <dc:Bounds x="2110" y="450" width="130" height="80" />
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNShape id="Ev_fin_di" bpmnElement="Ev_fin">
+      <bpmndi:BPMNShape id="Ev_fin_di" bpmnElement="Ev_fin" bioc:stroke="#a33122" bioc:fill="#ffffff" color:background-color="#ffffff" color:border-color="#a33122">
         <dc:Bounds x="2330" y="162" width="36" height="36" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="2288" y="204" width="120" height="30" />
+          <dc:Bounds x="2283" y="204" width="130" height="30" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNShape>
-      <bpmndi:BPMNEdge id="Fb_01_di" bpmnElement="Fb_01">
+      <bpmndi:BPMNShape id="Ann_superv_di" bpmnElement="Ann_superv">
+        <dc:Bounds x="212" y="320" width="205" height="130" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Fb_01_di" bpmnElement="Fb_01" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="296" y="180" />
         <di:waypoint x="340" y="180" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_02_di" bpmnElement="Fb_02">
+      <bpmndi:BPMNEdge id="Fb_02_di" bpmnElement="Fb_02" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="470" y="180" />
         <di:waypoint x="495" y="180" />
         <di:waypoint x="495" y="360" />
         <di:waypoint x="520" y="360" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_03_di" bpmnElement="Fb_03">
+      <bpmndi:BPMNEdge id="Fb_03_di" bpmnElement="Fb_03" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="650" y="360" />
         <di:waypoint x="690" y="360" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_04_di" bpmnElement="Fb_04">
+      <bpmndi:BPMNEdge id="Fb_04_di" bpmnElement="Fb_04" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="740" y="360" />
         <di:waypoint x="770" y="360" />
         <di:waypoint x="770" y="180" />
@@ -218,14 +219,14 @@
           <dc:Bounds x="746" y="340" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_05_di" bpmnElement="Fb_05">
+      <bpmndi:BPMNEdge id="Fb_05_di" bpmnElement="Fb_05" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="715" y="385" />
         <di:waypoint x="715" y="450" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="721" y="405" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_06_di" bpmnElement="Fb_06">
+      <bpmndi:BPMNEdge id="Fb_06_di" bpmnElement="Fb_06" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="650" y="490" />
         <di:waypoint x="430" y="490" />
         <di:waypoint x="430" y="220" />
@@ -233,26 +234,26 @@
           <dc:Bounds x="530" y="496" width="70" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_07_di" bpmnElement="Fb_07">
+      <bpmndi:BPMNEdge id="Fb_07_di" bpmnElement="Fb_07" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="930" y="180" />
         <di:waypoint x="1005" y="180" />
         <di:waypoint x="1005" y="335" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_16_di" bpmnElement="Fb_16">
+      <bpmndi:BPMNEdge id="Fb_16_di" bpmnElement="Fb_16" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="1030" y="360" />
         <di:waypoint x="1090" y="360" />
         <bpmndi:BPMNLabel>
           <dc:Bounds x="1040" y="364" width="20" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_17_di" bpmnElement="Fb_17">
+      <bpmndi:BPMNEdge id="Fb_17_di" bpmnElement="Fb_17" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="1005" y="385" />
         <di:waypoint x="1005" y="450" />
         <bpmndi:BPMNLabel>
-          <dc:Bounds x="1011" y="405" width="110" height="14" />
+          <dc:Bounds x="1011" y="405" width="135" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_18_di" bpmnElement="Fb_18">
+      <bpmndi:BPMNEdge id="Fb_18_di" bpmnElement="Fb_18" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="940" y="490" />
         <di:waypoint x="865" y="490" />
         <di:waypoint x="865" y="220" />
@@ -260,43 +261,43 @@
           <dc:Bounds x="871" y="420" width="95" height="14" />
         </bpmndi:BPMNLabel>
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_08_di" bpmnElement="Fb_08">
+      <bpmndi:BPMNEdge id="Fb_08_di" bpmnElement="Fb_08" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="1220" y="360" />
         <di:waypoint x="1260" y="360" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_09_di" bpmnElement="Fb_09">
+      <bpmndi:BPMNEdge id="Fb_09_di" bpmnElement="Fb_09" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="1390" y="360" />
         <di:waypoint x="1430" y="360" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_10_di" bpmnElement="Fb_10">
+      <bpmndi:BPMNEdge id="Fb_10_di" bpmnElement="Fb_10" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="1560" y="360" />
         <di:waypoint x="1580" y="360" />
-        <di:waypoint x="1580" y="660" />
-        <di:waypoint x="1600" y="660" />
+        <di:waypoint x="1580" y="490" />
+        <di:waypoint x="1600" y="490" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_11_di" bpmnElement="Fb_11">
-        <di:waypoint x="1730" y="660" />
-        <di:waypoint x="1770" y="660" />
+      <bpmndi:BPMNEdge id="Fb_11_di" bpmnElement="Fb_11" bioc:stroke="#333333" color:border-color="#333333">
+        <di:waypoint x="1730" y="490" />
+        <di:waypoint x="1770" y="490" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_12_di" bpmnElement="Fb_12">
-        <di:waypoint x="1900" y="660" />
-        <di:waypoint x="1920" y="660" />
+      <bpmndi:BPMNEdge id="Fb_12_di" bpmnElement="Fb_12" bioc:stroke="#333333" color:border-color="#333333">
+        <di:waypoint x="1900" y="490" />
+        <di:waypoint x="1920" y="490" />
         <di:waypoint x="1920" y="360" />
         <di:waypoint x="1940" y="360" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_13_di" bpmnElement="Fb_13">
+      <bpmndi:BPMNEdge id="Fb_13_di" bpmnElement="Fb_13" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="2070" y="360" />
         <di:waypoint x="2090" y="360" />
         <di:waypoint x="2090" y="180" />
         <di:waypoint x="2110" y="180" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_14_di" bpmnElement="Fb_14">
+      <bpmndi:BPMNEdge id="Fb_14_di" bpmnElement="Fb_14" bioc:stroke="#333333" color:border-color="#333333">
         <di:waypoint x="2175" y="220" />
-        <di:waypoint x="2175" y="620" />
+        <di:waypoint x="2175" y="450" />
       </bpmndi:BPMNEdge>
-      <bpmndi:BPMNEdge id="Fb_15_di" bpmnElement="Fb_15">
-        <di:waypoint x="2240" y="660" />
-        <di:waypoint x="2290" y="660" />
+      <bpmndi:BPMNEdge id="Fb_15_di" bpmnElement="Fb_15" bioc:stroke="#333333" color:border-color="#333333">
+        <di:waypoint x="2240" y="490" />
+        <di:waypoint x="2290" y="490" />
         <di:waypoint x="2290" y="180" />
         <di:waypoint x="2330" y="180" />
       </bpmndi:BPMNEdge>
