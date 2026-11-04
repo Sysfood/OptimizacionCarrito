@@ -83,3 +83,5 @@ Origen: H2, RP-01, RP-05, RP-06, RP-12 y RP-16. Acordar una fuente autorizada pa
 - Escalamiento a varios carritos y promesa de duplicar ventas sin personal: sin validación. La preparación y el empaque siguen requiriendo trabajo humano.
 - Cargo de empaque RP-21: candidato; no asumir cobro ni monto.
 - Las metas 5 s, 2 s, 6 acciones, 10 s y reserva de 3 min requieren validación; la entrevista no las establece.
+
+.
