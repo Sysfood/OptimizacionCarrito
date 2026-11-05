@@ -4,7 +4,6 @@
 
 La matriz de trazabilidad relaciona cada requisito de producto (RP) con los artefactos de análisis que lo desarrollan: historias de usuario (HU), casos de uso (CU), diagramas de secuencia (DSS), diagramas de estado (EST) y clases del modelo de dominio.
 
-> Una celda vacía significa que el artefacto no modela directamente ese requisito en la versión actual de la Entrega 2. No se agregan relaciones solo para completar la tabla.
 
 ## 2. Matriz de trazabilidad
 
