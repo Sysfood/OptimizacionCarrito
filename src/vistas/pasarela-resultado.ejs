@@ -1,0 +1,25 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Pasarela de pago (simulada)</h1>
+    <p>El pago ya fue enviado. Esta es la respuesta de la pasarela: emite uno de los tres resultados posibles. No se solicitan ni almacenan datos de tarjeta.</p>
+  </section>
+
+  <div class="aviso">
+    <h2>Pago del pedido #<%= pedidoId %></h2>
+    <p>Monto: <strong data-monto="<%= monto %>"><%= montoFormateado %></strong></p>
+    <p>Referencia del intento: <%= referencia %></p>
+  </div>
+
+  <form class="acciones-pedido" method="post" action="/demo/pasarela/<%= pagoId %>/resultado">
+    <input type="hidden" name="referencia" value="<%= referencia %>">
+    <button type="submit" name="resultado" value="aprobado" class="boton-principal">Emitir resultado: aprobado</button>
+    <button type="submit" name="resultado" value="rechazado" class="boton-secundario">Emitir resultado: rechazado</button>
+    <button type="submit" name="resultado" value="cancelado" class="boton-secundario">Emitir resultado: cancelado</button>
+  </form>
+
+  <p><a class="boton-secundario" href="/pedido">Volver al pedido</a></p>
+</main>
+
+<%- include('parciales/pie') %>

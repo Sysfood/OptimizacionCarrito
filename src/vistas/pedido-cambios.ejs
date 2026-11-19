@@ -1,0 +1,44 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Revisa los cambios antes de pagar</h1>
+    <p>El pedido cambió desde que lo armaste.</p>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Cambios detectados</h2>
+    <ul>
+      <% precios.forEach(function (cambio) { %>
+        <li>El precio de <strong><%= cambio.nombre %></strong> cambió de <%= cambio.anterior %> a <%= cambio.nuevo %>.</li>
+      <% }); %>
+      <% disponibilidad.forEach(function (cambio) { %>
+        <li>De <strong><%= cambio.nombre %></strong> pediste <%= cambio.cantidadSolicitada %> unidades y ahora quedan <%= cambio.unidadesVendibles %>.</li>
+      <% }); %>
+    </ul>
+  </div>
+
+  <p class="total-cambio" data-total-anterior="<%= totalAnterior %>" data-total-nuevo="<%= totalNuevo %>">
+    Total anterior: <strong><%= totalAnteriorFormateado %></strong>
+    <% if (totalNuevo !== totalAnterior) { %>
+      · Total nuevo: <strong><%= totalNuevoFormateado %></strong>
+    <% } %>
+  </p>
+
+  <% if (!puedeAceptar) { %>
+    <p>No puedes continuar con el pago hasta ajustar la cantidad o eliminar el producto afectado.</p>
+    <div class="acciones-pedido">
+      <a class="boton-secundario" href="/pedido">Volver al pedido</a>
+    </div>
+  <% } else { %>
+    <p>El pago no se inicia hasta que aceptes el nuevo total. Al aceptarlo, el pedido quedará listo para pagar.</p>
+    <div class="acciones-pedido">
+      <a class="boton-secundario" href="/pedido">Volver al pedido</a>
+      <form method="post" action="/pedido/aceptar-total">
+        <button type="submit" class="boton-principal">Aceptar nuevo total</button>
+      </form>
+    </div>
+  <% } %>
+</main>
+
+<%- include('parciales/pie') %>

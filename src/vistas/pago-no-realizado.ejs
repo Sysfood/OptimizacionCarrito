@@ -1,0 +1,52 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1><%= motivo === 'cancelado' ? 'Pago cancelado' : 'Pago rechazado' %></h1>
+    <p><%= motivo === 'cancelado'
+      ? 'La pasarela informó que cancelaste el pago. El pedido no quedó confirmado.'
+      : 'La pasarela informó que el pago fue rechazado. El pedido no quedó confirmado.' %></p>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Pago no realizado</h2>
+    <p>El pedido sigue en estado <strong><%= pedido.estado %></strong> y tu selección se conserva para reintentar.</p>
+    <p>Las unidades de la reserva se liberaron. Al reintentar se revalidan el precio y la disponibilidad.</p>
+  </div>
+
+  <table class="tabla-pedido">
+    <thead>
+      <tr>
+        <th>Producto</th>
+        <th>Precio unitario</th>
+        <th>Cantidad</th>
+        <th>Subtotal</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% pedido.detalles.forEach(function (detalle) { %>
+        <tr data-producto-id="<%= detalle.productoId %>" data-subtotal="<%= detalle.subtotal %>">
+          <td><%= detalle.nombre %></td>
+          <td><%= detalle.precioFormateado %></td>
+          <td><%= detalle.cantidad %></td>
+          <td><%= detalle.subtotalFormateado %></td>
+        </tr>
+      <% }); %>
+    </tbody>
+    <tfoot>
+      <tr>
+        <td colspan="3">Total conservado</td>
+        <td data-total="<%= pedido.total %>"><strong><%= pedido.totalFormateado %></strong></td>
+      </tr>
+    </tfoot>
+  </table>
+
+  <div class="acciones-pedido">
+    <a class="boton-secundario" href="/pedido">Volver a mi pedido</a>
+    <form method="post" action="/pedido/reintentar">
+      <button type="submit" class="boton-principal">Reintentar pago</button>
+    </form>
+  </div>
+</main>
+
+<%- include('parciales/pie') %>

@@ -1,0 +1,23 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Enviar pago a la pasarela</h1>
+    <p>Este paso envía el pago a la Pasarela de pago. La aprobación, el rechazo y la cancelación los emitirá la pasarela en el siguiente paso, no el estudiante.</p>
+  </section>
+
+  <div class="aviso">
+    <h2>Pago del pedido #<%= pedidoId %></h2>
+    <p>Monto a pagar: <strong data-monto="<%= monto %>"><%= montoFormateado %></strong></p>
+    <p>No se solicitan ni almacenan datos de tarjeta.</p>
+  </div>
+
+  <form class="acciones-pedido" method="post" action="/demo/pasarela/<%= pagoId %>/enviar">
+    <input type="hidden" name="referencia" value="<%= referencia %>">
+    <button type="submit" class="boton-principal">Enviar pago</button>
+  </form>
+
+  <p><a class="boton-secundario" href="/pedido">Volver al pedido</a></p>
+</main>
+
+<%- include('parciales/pie') %>

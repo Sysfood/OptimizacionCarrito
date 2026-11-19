@@ -1,0 +1,27 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Catálogo del carrito</h1>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Disponibilidad no verificable</h2>
+    <p><%= motivo %></p>
+    <p>No se permite iniciar un pago con esta información. Vuelve a intentarlo cuando la fuente de inventario esté disponible.</p>
+  </div>
+
+  <section class="panel-demo">
+    <h2>Panel de demostración</h2>
+    <p>La fuente de inventario está simulada. Desde aquí puedes restaurarla para continuar con la demostración.</p>
+    <form method="post" action="/demo/fuente-inventario">
+      <button type="submit"><%= fuenteDisponible ? 'Simular fuente no disponible' : 'Restaurar fuente de inventario' %></button>
+    </form>
+  </section>
+</main>
+
+<script>
+  setTimeout(function () { window.location.reload(); }, 5000);
+</script>
+
+<%- include('parciales/pie') %>

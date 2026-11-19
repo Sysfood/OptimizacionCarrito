@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>TurnoCarrito — <%= typeof titulo !== 'undefined' ? titulo : 'Catálogo' %></title>
+  <style>
+    :root {
+      --tinta: #24303a;
+      --suave: #5b6b78;
+      --fondo: #f6f1e7;
+      --papel: #fffdf8;
+      --borde: #e2d8c6;
+      --acento: #b8431f;
+      --acento-suave: #f3d9cd;
+      --verde: #2f6b3a;
+      --verde-suave: #e3f0e2;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: var(--fondo);
+      color: var(--tinta);
+      line-height: 1.5;
+    }
+
+    .barra {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding: 0.9rem 1.5rem;
+      background: var(--papel);
+      border-bottom: 1px solid var(--borde);
+    }
+
+    .marca {
+      display: flex;
+      align-items: center;
+      gap: 0.55rem;
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: 0.01em;
+    }
+
+    .marca .punto {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 999px;
+      background: var(--acento);
+      display: inline-block;
+    }
+
+    .navegacion {
+      display: flex;
+      gap: 1rem;
+      font-size: 0.9rem;
+    }
+
+    .navegacion a {
+      color: var(--acento);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .navegacion a:hover { text-decoration: underline; }
+
+    .selector-rol {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--suave);
+    }
+
+    select, button {
+      font: inherit;
+    }
+
+    select {
+      padding: 0.35rem 0.5rem;
+      border: 1px solid var(--borde);
+      border-radius: 0.5rem;
+      background: var(--papel);
+      color: var(--tinta);
+    }
+
+    .nota-rol {
+      margin: 0;
+      padding: 0.55rem 1.5rem;
+      background: var(--acento-suave);
+      color: #7a2c13;
+      font-size: 0.9rem;
+    }
+
+    .contenedor {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+
+    .intro h1 {
+      margin: 0 0 0.35rem;
+      font-size: 1.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    .intro p { margin: 0.2rem 0; color: var(--suave); }
+
+    .jornada {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .grilla {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .producto {
+      background: var(--papel);
+      border: 1px solid var(--borde);
+      border-radius: 0.9rem;
+      padding: 1.1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .producto h2 {
+      margin: 0;
+      font-size: 1.05rem;
+    }
+
+    .precio {
+      margin: 0;
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: var(--acento);
+    }
+
+    .unidades {
+      margin: 0;
+      font-size: 0.9rem;
+      color: var(--verde);
+    }
+
+    .etiqueta {
+      margin: 0;
+      align-self: flex-start;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .etiqueta--agotado {
+      background: var(--acento-suave);
+      color: #7a2c13;
+    }
+
+    .producto--agotado {
+      background: #fbf4ee;
+      border-style: dashed;
+    }
+
+    .actualizacion {
+      margin: 0.35rem 0 0;
+      font-size: 0.75rem;
+      color: var(--suave);
+    }
+
+    .aviso {
+      margin-top: 1.5rem;
+      padding: 1.25rem 1.4rem;
+      background: #fff5e5;
+      border: 1px solid #e0b45c;
+      border-left: 6px solid #c98a1c;
+      border-radius: 0.75rem;
+    }
+
+    .aviso h2 { margin: 0 0 0.4rem; font-size: 1.2rem; }
+    .aviso p { margin: 0.25rem 0; }
+
+    .panel-demo {
+      margin-top: 2rem;
+      padding: 1rem 1.2rem;
+      background: var(--verde-suave);
+      border: 1px dashed #9dbf9b;
+      border-radius: 0.75rem;
+      font-size: 0.9rem;
+    }
+
+    .panel-demo h2 { margin: 0 0 0.35rem; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .panel-demo p { margin: 0 0 0.7rem; color: #34543a; }
+
+    .panel-demo button {
+      padding: 0.5rem 0.9rem;
+      border: 1px solid #7ea37c;
+      border-radius: 0.5rem;
+      background: #f7fbf6;
+      color: #234a28;
+      cursor: pointer;
+    }
+
+    .panel-demo button:hover { background: #eef7ec; }
+
+    .panel-demo form + form { margin-top: 0.75rem; }
+
+    .demo-form {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: end;
+      gap: 0.6rem;
+    }
+
+    .demo-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.2rem;
+      font-size: 0.8rem;
+      color: #34543a;
+    }
+
+    .demo-form input, .demo-form select {
+      padding: 0.35rem 0.45rem;
+      border: 1px solid #9dbf9b;
+      border-radius: 0.4rem;
+      background: #f7fbf6;
+      color: var(--tinta);
+    }
+
+    .demo-form input[type="number"] { width: 6.5rem; }
+
+    .agregar-form {
+      display: flex;
+      align-items: end;
+      gap: 0.5rem;
+      margin-top: 0.45rem;
+      padding-top: 0.55rem;
+      border-top: 1px dashed var(--borde);
+    }
+
+    .agregar-form label {
+      display: flex;
+      flex-direction: column;
+      gap: 0.15rem;
+      font-size: 0.78rem;
+      color: var(--suave);
+    }
+
+    .agregar-form input {
+      width: 4.5rem;
+      padding: 0.3rem 0.4rem;
+      border: 1px solid var(--borde);
+      border-radius: 0.4rem;
+    }
+
+    .agregar-form button, .tabla-pedido button {
+      padding: 0.38rem 0.7rem;
+      border: 1px solid var(--borde);
+      border-radius: 0.45rem;
+      background: #f7fbf6;
+      color: var(--tinta);
+      cursor: pointer;
+    }
+
+    .agregar-form button:hover, .tabla-pedido button:hover { background: #eef7ec; }
+
+    .tabla-pedido {
+      width: 100%;
+      margin-top: 1.25rem;
+      border-collapse: collapse;
+      background: var(--papel);
+      border: 1px solid var(--borde);
+      border-radius: 0.9rem;
+      overflow: hidden;
+    }
+
+    .tabla-pedido th, .tabla-pedido td {
+      padding: 0.7rem 0.8rem;
+      border-bottom: 1px solid var(--borde);
+      text-align: left;
+      vertical-align: middle;
+    }
+
+    .tabla-pedido thead {
+      background: #f1e9da;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tabla-pedido tfoot td { font-weight: 700; border-bottom: none; }
+    .tabla-pedido tfoot td:first-child { text-align: right; }
+
+    .cantidad-form { display: flex; align-items: center; gap: 0.4rem; }
+
+    .cantidad-form input {
+      width: 4.5rem;
+      padding: 0.3rem 0.4rem;
+      border: 1px solid var(--borde);
+      border-radius: 0.4rem;
+    }
+
+    .disponible {
+      margin: 0.25rem 0 0;
+      font-size: 0.75rem;
+      color: var(--suave);
+    }
+
+    .estado-pedido { margin: 0.6rem 0 0; }
+
+    .acciones-pedido {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 0.75rem;
+      margin-top: 1.25rem;
+    }
+
+    .boton-principal, .boton-secundario {
+      display: inline-block;
+      padding: 0.55rem 1rem;
+      border-radius: 0.55rem;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .boton-principal {
+      border: none;
+      background: var(--acento);
+      color: #fff;
+    }
+
+    .boton-principal:hover { background: #9c3718; }
+
+    .boton-secundario {
+      border: 1px solid var(--borde);
+      background: var(--papel);
+      color: var(--tinta);
+    }
+
+    .boton-secundario:hover { background: #f1e9da; }
+
+    .aviso--exito {
+      background: var(--verde-suave);
+      border-color: #9dbf9b;
+      border-left-color: var(--verde);
+    }
+
+    .alternativas-titulo { margin-top: 0.7rem; font-weight: 600; }
+
+    .alternativas {
+      margin: 0.3rem 0 0;
+      padding-left: 1.2rem;
+    }
+
+    .alternativas li { margin: 0.15rem 0; }
+
+    .aviso ul { margin: 0.4rem 0 0; padding-left: 1.2rem; }
+    .aviso li { margin: 0.25rem 0; }
+
+    .total-cambio { font-size: 1.15rem; }
+
+    .codigo-retiro {
+      font-family: "Consolas", "Courier New", monospace;
+      font-size: 1.15rem;
+      letter-spacing: 0.06em;
+    }
+
+    .nota-codigo, .estimacion, .confirmado-en {
+      font-size: 0.88rem;
+      color: var(--suave);
+    }
+
+    .resultado-consulta { margin-top: 1.5rem; }
+
+    @media (max-width: 520px) {
+      .barra { align-items: flex-start; }
+      .contenedor { padding-top: 1.4rem; }
+      .tabla-pedido th:nth-child(2), .tabla-pedido td:nth-child(2) { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <header class="barra">
+    <div class="marca"><span class="punto"></span> TurnoCarrito</div>
+    <nav class="navegacion" aria-label="Navegación principal">
+      <a href="/catalogo">Catálogo</a>
+      <a href="/pedido">Mi pedido</a>
+      <a href="/pedido/consultar">Consultar pedido</a>
+    </nav>
+    <form class="selector-rol" method="post" action="/demo/rol">
+      <label for="rol">Rol de demostración</label>
+      <select id="rol" name="rol" onchange="this.form.submit()">
+        <option value="estudiante" <%= rol === 'estudiante' ? 'selected' : '' %>>Estudiante</option>
+        <option value="vendedor" <%= rol === 'vendedor' ? 'selected' : '' %>>Vendedor</option>
+        <option value="encargado" <%= rol === 'encargado' ? 'selected' : '' %>>Encargado</option>
+      </select>
+      <noscript><button type="submit">Cambiar</button></noscript>
+    </form>
+  </header>
+
+  <% if (rol !== 'estudiante') { %>
+    <p class="nota-rol">Estás viendo la aplicación como <strong><%= rol %></strong>. Las pantallas de este rol se agregan en historias posteriores.</p>
+  <% } %>

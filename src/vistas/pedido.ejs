@@ -1,0 +1,157 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Mi pedido</h1>
+    <p>Revisa los productos, las cantidades y el total antes de continuar.</p>
+  </section>
+
+  <% if (!fuenteDisponible) { %>
+    <div class="aviso" role="alert">
+      <h2>Disponibilidad no verificable</h2>
+      <p>La fuente de inventario no responde en este momento. No se puede continuar al pago hasta que vuelva a estar disponible.</p>
+    </div>
+  <% } %>
+
+  <% if (aviso) { %>
+    <div class="aviso" role="alert">
+      <h2><%= aviso.titulo %></h2>
+      <p><%= aviso.mensaje %></p>
+      <% if (aviso.alternativas.length > 0) { %>
+        <p class="alternativas-titulo">Alternativas disponibles (no se agregaron automáticamente):</p>
+        <ul class="alternativas">
+          <% aviso.alternativas.forEach(function (alternativa) { %>
+            <li><strong><%= alternativa.nombre %></strong> · <%= alternativa.precioFormateado %> · <%= alternativa.unidadesTexto %></li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+  <% } %>
+
+  <% if (!pedido) { %>
+    <div class="aviso">
+      <h2>Tu pedido está vacío</h2>
+      <p>Agrega productos desde el catálogo para comenzar.</p>
+      <p><a class="boton-secundario" href="/catalogo">Ir al catálogo</a></p>
+    </div>
+  <% } else { %>
+    <p class="estado-pedido">Estado: <strong><%= pedido.estado %></strong></p>
+    <p class="jornada">Jornada del <%= pedido.jornada.fecha %> · <%= pedido.jornada.horaApertura %> a <%= pedido.jornada.horaCierre %></p>
+
+    <% if (pedido.estado === 'Confirmado') { %>
+      <div class="aviso aviso--exito">
+        <h2>Pedido confirmado</h2>
+        <p>Tu código de retiro es <strong class="codigo-retiro" data-codigo="<%= pedido.codigo %>"><%= pedido.codigo %></strong>.</p>
+        <p>Estimación: <strong><%= pedido.estimacionTexto %></strong>. El código no es una cita ni garantiza una hora de retiro.</p>
+        <p><a class="boton-principal" href="/pedido/confirmacion/<%= pedido.id %>">Ver confirmación</a></p>
+      </div>
+    <% } else if (pedido.estado === 'Pendiente de pago') { %>
+      <div class="aviso">
+        <h2>Pago pendiente</h2>
+        <p>El pedido está pendiente de pago. Las unidades quedaron reservadas mientras completas la pasarela simulada.</p>
+        <% if (pagoPendienteId) { %>
+          <p><a class="boton-principal" href="/demo/pasarela/<%= pagoPendienteId %>">Continuar en la pasarela</a></p>
+        <% } %>
+      </div>
+    <% } else if (pedido.estado === 'Pago no realizado') { %>
+      <div class="aviso">
+        <h2>Pago no realizado</h2>
+        <p>El pago no se completó y la reserva se liberó. Tu selección se conserva para reintentar.</p>
+        <form method="post" action="/pedido/reintentar">
+          <button type="submit" class="boton-principal">Reintentar pago</button>
+        </form>
+      </div>
+    <% } %>
+
+    <table class="tabla-pedido">
+      <thead>
+        <tr>
+          <th>Producto</th>
+          <th>Precio unitario</th>
+          <th>Cantidad</th>
+          <th>Subtotal</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <% pedido.detalles.forEach(function (detalle) { %>
+          <tr data-producto-id="<%= detalle.productoId %>" data-subtotal="<%= detalle.subtotal %>">
+            <td><%= detalle.nombre %></td>
+            <td><%= detalle.precioFormateado %></td>
+            <td>
+              <% if (pedido.editable) { %>
+                <form class="cantidad-form" method="post" action="/pedido/detalle/<%= detalle.productoId %>/actualizar">
+                  <input type="number" name="cantidad" min="1" max="<%= detalle.unidadesVendibles %>" value="<%= detalle.cantidad %>" required aria-label="Cantidad de <%= detalle.nombre %>">
+                  <button type="submit">Actualizar</button>
+                </form>
+                <p class="disponible"><%= detalle.unidadesVendibles %> disponibles</p>
+              <% } else { %>
+                <%= detalle.cantidad %>
+              <% } %>
+            </td>
+            <td><%= detalle.subtotalFormateado %></td>
+            <td>
+              <% if (pedido.editable) { %>
+                <form method="post" action="/pedido/detalle/<%= detalle.productoId %>/eliminar">
+                  <button type="submit">Eliminar</button>
+                </form>
+              <% } %>
+            </td>
+          </tr>
+        <% }); %>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">Total del pedido</td>
+          <td colspan="2" data-total="<%= pedido.total %>"><strong><%= pedido.totalFormateado %></strong></td>
+        </tr>
+      </tfoot>
+    </table>
+
+    <div class="acciones-pedido">
+      <a class="boton-secundario" href="/catalogo">Seguir comprando</a>
+      <% if (pedido.editable && fuenteDisponible) { %>
+        <form method="post" action="/pedido/revalidar">
+          <button type="submit" class="boton-principal">Continuar al pago</button>
+        </form>
+      <% } %>
+    </div>
+
+    <% if (pedido.editable) { %>
+      <section class="panel-demo">
+        <h2>Panel de demostración</h2>
+        <p>Estos controles simulan cambios del mundo real para probar la revalidación antes del pago.</p>
+
+        <form class="demo-form" method="post" action="/demo/precio">
+          <label>Producto
+            <select name="productoId" required>
+              <% productosDemo.forEach(function (producto) { %>
+                <option value="<%= producto.id %>"><%= producto.nombre %></option>
+              <% }); %>
+            </select>
+          </label>
+          <label>Nuevo precio (CLP)
+            <input type="number" name="precio" min="0" step="1" value="3500" required>
+          </label>
+          <button type="submit">Cambiar precio</button>
+        </form>
+
+        <form class="demo-form" method="post" action="/demo/consumir">
+          <label>Producto
+            <select name="productoId" required>
+              <% productosDemo.forEach(function (producto) { %>
+                <option value="<%= producto.id %>"><%= producto.nombre %></option>
+              <% }); %>
+            </select>
+          </label>
+          <label>Cantidad a consumir
+            <input type="number" name="cantidad" min="1" step="1" value="1" required>
+          </label>
+          <button type="submit">Consumir unidades</button>
+        </form>
+      </section>
+    <% } %>
+  <% } %>
+</main>
+
+<%- include('parciales/pie') %>

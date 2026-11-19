@@ -1,0 +1,60 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Catálogo del carrito</h1>
+    <p>Consulta precios y disponibilidad antes de salir de clase.</p>
+    <p class="jornada">Jornada del <%= jornada.fecha %> · <%= jornada.horaApertura %> a <%= jornada.horaCierre %></p>
+  </section>
+
+  <% if (typeof errorPedido !== 'undefined' && errorPedido) { %>
+    <div class="aviso" role="alert">
+      <h2><%= errorPedido.titulo %></h2>
+      <p><%= errorPedido.mensaje %></p>
+      <% if (errorPedido.alternativas.length > 0) { %>
+        <p class="alternativas-titulo">Alternativas disponibles (no se agregaron automáticamente):</p>
+        <ul class="alternativas">
+          <% errorPedido.alternativas.forEach(function (alternativa) { %>
+            <li><strong><%= alternativa.nombre %></strong> · <%= alternativa.precioFormateado %> · <%= alternativa.unidadesTexto %></li>
+          <% }); %>
+        </ul>
+      <% } %>
+    </div>
+  <% } %>
+
+  <section class="grilla" aria-label="Productos del catálogo">
+    <% productos.forEach(function (producto) { %>
+      <article class="producto <%= producto.agotado ? 'producto--agotado' : '' %>" data-producto-id="<%= producto.id %>">
+        <h2><%= producto.nombre %></h2>
+        <p class="precio"><%= producto.precioFormateado %></p>
+        <% if (producto.agotado) { %>
+          <p class="etiqueta etiqueta--agotado">Agotado</p>
+        <% } else { %>
+          <p class="unidades"><%= producto.unidadesTexto %></p>
+          <form class="agregar-form" method="post" action="/pedido/agregar">
+            <input type="hidden" name="productoId" value="<%= producto.id %>">
+            <label>Cantidad
+              <input type="number" name="cantidad" min="1" max="<%= producto.unidadesVendibles %>" value="1" required>
+            </label>
+            <button type="submit">Agregar</button>
+          </form>
+        <% } %>
+        <p class="actualizacion">Última actualización: <%= producto.actualizacionFormateada %></p>
+      </article>
+    <% }); %>
+  </section>
+
+  <section class="panel-demo">
+    <h2>Panel de demostración</h2>
+    <p>La fuente de inventario está simulada. Puedes forzar el escenario «no verificable» para probar el aviso.</p>
+    <form method="post" action="/demo/fuente-inventario">
+      <button type="submit"><%= fuenteDisponible ? 'Simular fuente no disponible' : 'Restaurar fuente de inventario' %></button>
+    </form>
+  </section>
+</main>
+
+<script>
+  setTimeout(function () { window.location.reload(); }, 5000);
+</script>
+
+<%- include('parciales/pie') %>

@@ -1,0 +1,32 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Pedido confirmado</h1>
+    <p>El pago fue aprobado y el pedido quedó registrado una sola vez.</p>
+  </section>
+
+  <%- include('parciales/pedido-confirmado-detalle', { pedido: pedido }) %>
+
+  <div class="acciones-pedido">
+    <a class="boton-secundario" href="/pedido">Volver a mi pedido</a>
+    <a class="boton-secundario" href="/pedido/consultar">Consultar otro pedido</a>
+    <form method="post" action="/pedido/confirmacion/<%= pedido.id %>/repetir">
+      <button type="submit" class="boton-secundario">Repetir notificación aprobada</button>
+    </form>
+  </div>
+
+  <section class="panel-demo">
+    <h2>Panel de demostración</h2>
+    <p>Fija un texto de estimación o un aviso de atraso. El pedido no se cancela por superar la estimación.</p>
+    <form class="demo-form" method="post" action="/demo/estimacion">
+      <input type="hidden" name="pedidoId" value="<%= pedido.id %>">
+      <label>Estimación o atraso
+        <input type="text" name="texto" maxlength="120" value="<%= pedido.estimacionPreparacion || '' %>" placeholder="Retraso de 10 minutos" required>
+      </label>
+      <button type="submit">Fijar estimación o atraso</button>
+    </form>
+  </section>
+</main>
+
+<%- include('parciales/pie') %>

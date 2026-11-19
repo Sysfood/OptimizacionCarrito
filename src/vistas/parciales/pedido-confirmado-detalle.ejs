@@ -1,0 +1,39 @@
+<p class="estado-pedido">Estado: <strong><%= pedido.estado %></strong></p>
+
+<% if (pedido.codigo) { %>
+  <p>Código de retiro: <strong class="codigo-retiro" data-codigo="<%= pedido.codigo %>"><%= pedido.codigo %></strong></p>
+<% } %>
+
+<p class="estimacion">Estimación informativa: <strong data-estimacion><%= pedido.estimacionTexto %></strong></p>
+<p class="nota-codigo">El código identifica tu pedido y no es una cita ni garantiza una hora de retiro.</p>
+
+<% if (pedido.fechaHoraConfirmacionFormateada) { %>
+  <p class="confirmado-en">Confirmado el <%= pedido.fechaHoraConfirmacionFormateada %>.</p>
+<% } %>
+
+<table class="tabla-pedido">
+  <thead>
+    <tr>
+      <th>Producto</th>
+      <th>Precio unitario</th>
+      <th>Cantidad</th>
+      <th>Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    <% pedido.detalles.forEach(function (detalle) { %>
+      <tr data-producto-id="<%= detalle.productoId %>" data-subtotal="<%= detalle.subtotal %>">
+        <td><%= detalle.nombre %></td>
+        <td><%= detalle.precioFormateado %></td>
+        <td><%= detalle.cantidad %></td>
+        <td><%= detalle.subtotalFormateado %></td>
+      </tr>
+    <% }); %>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td colspan="3">Total del pedido</td>
+      <td data-total="<%= pedido.total %>"><strong><%= pedido.totalFormateado %></strong></td>
+    </tr>
+  </tfoot>
+</table>

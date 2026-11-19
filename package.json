@@ -1,0 +1,27 @@
+{
+  "name": "turnocarrito",
+  "version": "0.1.0",
+  "private": true,
+  "description": "TurnoCarrito — aplicación web del curso CIN 324",
+  "scripts": {
+    "dev": "tsx watch src/server.ts",
+    "start": "tsx src/server.ts",
+    "db:seed": "tsx src/db/seed-cli.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "better-sqlite3": "^12.4.1",
+    "ejs": "^3.1.10",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.0.0",
+    "@types/supertest": "^6.0.3",
+    "supertest": "^7.1.1",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3",
+    "vitest": "^3.2.4"
+  }
+}

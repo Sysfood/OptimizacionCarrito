@@ -1,0 +1,31 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Consultar pedido</h1>
+    <p>Ingresa el código de retiro para ver el estado y el detalle de un pedido confirmado.</p>
+  </section>
+
+  <form class="demo-form" method="post" action="/pedido/consultar">
+    <label>Código de retiro
+      <input type="text" name="codigo" value="<%= codigo %>" placeholder="TC-20261118-0001" autocomplete="off" required>
+    </label>
+    <button type="submit" class="boton-principal">Consultar</button>
+  </form>
+
+  <% if (error) { %>
+    <div class="aviso" role="alert">
+      <h2>No encontramos el pedido</h2>
+      <p><%= error %></p>
+    </div>
+  <% } %>
+
+  <% if (pedido) { %>
+    <section class="resultado-consulta">
+      <h2>Pedido <%= pedido.codigo %></h2>
+      <%- include('parciales/pedido-confirmado-detalle', { pedido: pedido }) %>
+    </section>
+  <% } %>
+</main>
+
+<%- include('parciales/pie') %>
