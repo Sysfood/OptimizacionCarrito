@@ -31,6 +31,7 @@ alt hay disponibilidad para todos los productos
   PAS --> EST : solicitar datos de pago
   EST -> PAS : ingresar datos de pago
   PAS --> SIS : resultado del pago
+  note over PAS : En la demostración, un control de la pasarela simulada\nemite el resultado (aprobado, rechazado o cancelado);\nel estudiante no decide la aprobación.
 
   alt pago aprobado y reserva vigente
     SIS -> SIS : consumir reserva y registrar venta

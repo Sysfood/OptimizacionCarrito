@@ -34,6 +34,7 @@ title EST-01 — Ciclo de vida de Pedido\n
 hide empty description
 left to right direction
 
+state "En edición" as EDI
 state "Pendiente de pago" as PEN
 state "Confirmado" as CNF
 state "En preparación" as PRE
@@ -46,7 +47,8 @@ state F1 <<end>>
 state F2 <<end>>
 state F3 <<end>>
 
-[*] --> PEN : iniciar pago\n[hay disponibilidad]\n/ reservar unidades
+[*] --> EDI : crear pedido
+EDI --> PEN : iniciar pago\n[hay disponibilidad]\n/ reservar unidades
 PEN --> CNF : pago aprobado\n[reserva vigente]\n/ consumir reserva,\nregistrar venta,\nasignar código
 CNF --> PRE : iniciar preparación
 PRE --> LIS : marcar pedido listo\n/ enviar aviso\nde pedido listo

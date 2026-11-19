@@ -10,7 +10,7 @@ Cómo leer los diagramas: cada transición se rotula `evento [guarda] / acción`
 
 - Clase del dominio: [Pedido](./08-modelo-dominio.md)
 - Diagramas de secuencia relacionados: [DSS-01](./10-diagramas-secuencia.md#dss-01--pagar-un-pedido-con-reserva-de-unidades) y [DSS-02](./10-diagramas-secuencia.md#dss-02--avisar-que-el-pedido-está-listo)
-- Historias: HU-03, HU-04, HU-06 y HU-07
+- Historias: HU-02, HU-03, HU-04, HU-06 y HU-07
 - Requisitos: RP-04, RP-05, RP-09, RP-11
 
 ![EST-01](./diagramas/est-01.png)
@@ -21,7 +21,8 @@ Archivo fuente: [`./diagramas/est-01.puml`](./diagramas/est-01.puml)
 
 | Estado origen | Evento | Guarda | Acción | Estado destino |
 |---|---|---|---|---|
-| (inicial) | iniciar pago | hay disponibilidad | reservar unidades | Pendiente de pago |
+| (inicial) | crear pedido | — | — | En edición |
+| En edición | iniciar pago | hay disponibilidad | reservar unidades | Pendiente de pago |
 | Pendiente de pago | pago aprobado | reserva vigente | consumir reserva, registrar venta, asignar código | Confirmado |
 | Pendiente de pago | pago rechazado | — | liberar reserva | Pago no realizado |
 | Pendiente de pago | pago cancelado | — | liberar reserva | Pago no realizado |
@@ -39,6 +40,7 @@ Archivo fuente: [`./diagramas/est-01.puml`](./diagramas/est-01.puml)
 
 Decisiones de modelado:
 
+- *En edición* es el estado en que HU-02 deja el pedido mientras el estudiante agrega, modifica o elimina productos y acepta el total. El pago (HU-03) es el evento que lo lleva a *Pendiente de pago*; así el pedido existe desde que se arma, como define el modelo de dominio.
 - *Pago no realizado* no es final: HU-03 CA4 exige conservar la selección para reintentar. El reintento vuelve a validar disponibilidad y crea una reserva nueva (HU-04 CA5).
 - *En conciliación* y *Reembolsado* modelan el pago aprobado después del vencimiento (Derivación 1): el pedido solo se confirma si se obtiene stock; si no, se tramita la reversa y nunca pasa a preparación.
 - No se modela un estado para pedidos pagados y no retirados, porque esa política está fuera de alcance según [03-requisitos.md](./03-requisitos.md#fuera-de-alcance-y-decisiones-pendientes). Un pedido listo permanece en *Listo para retiro* hasta su entrega.
@@ -47,7 +49,7 @@ Decisiones de modelado:
 
 - Clase del dominio: [Reserva](./08-modelo-dominio.md)
 - Diagramas de secuencia relacionados: [DSS-01](./10-diagramas-secuencia.md#dss-01--pagar-un-pedido-con-reserva-de-unidades)
-- Historias: HU-04 y HU-08
+- Historias: HU-03, HU-04 y HU-08
 - Requisitos: RP-05, RP-16; Derivación 1
 
 ![EST-02](./diagramas/est-02.png)

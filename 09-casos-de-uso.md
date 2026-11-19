@@ -11,7 +11,7 @@ Los casos de uso describen **objetivos que un actor quiere lograr con TurnoCarri
 | Estudiante | Humano | Consulta productos y disponibilidad, arma y paga su pedido, consulta su estado y presenta el código para retirarlo. |
 | Vendedor | Humano | Atiende el carrito: prepara los pedidos confirmados, avisa que están listos, confirma la entrega y administra la disponibilidad del canal digital. |
 | Encargado | Humano | Consulta las ventas digitales y los rechazos por falta de stock para apoyar la reposición. |
-| Pasarela de pago | Sistema externo | Procesa el pago del pedido y comunica su resultado (aprobado, rechazado o tardío). El proveedor aún no está definido. |
+| Pasarela de pago | Sistema externo | Procesa el pago del pedido y comunica su resultado (aprobado, rechazado o tardío). El proveedor aún no está definido. En la demostración se simula: el estudiante envía el pago y un control de la pasarela simulada emite el resultado; el estudiante no aprueba su propio pago. |
 | Servicio de notificaciones | Sistema externo | Entrega al estudiante el aviso de pedido listo. El canal (push, SMS u otro) aún no está definido. |
 
 ## Diagrama de casos de uso

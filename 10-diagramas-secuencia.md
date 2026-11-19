@@ -17,6 +17,8 @@ Archivo fuente: [`./diagramas/dss-01.puml`](./diagramas/dss-01.puml)
 
 Escenario principal: el estudiante inicia el pago y TurnoCarrito revalida la disponibilidad y reserva las unidades por 3 minutos. Luego solicita el cobro a la pasarela, que pide los datos de pago directamente al estudiante (RP-18). Con el pago aprobado y la reserva vigente, el sistema consume la reserva, registra la venta y entrega el código de pedido con su estimación informativa.
 
+Nota de demostración: la Pasarela de pago se simula. El estudiante envía el pago sin capturar datos de tarjeta (RP-18) y un control identificado como «Pasarela de pago (simulada)» emite el resultado aprobado, rechazado o cancelado; TurnoCarrito lo verifica contra el intento registrado antes de confirmar (HU-03 CA1). El estudiante no decide la aprobación.
+
 Variantes representadas:
 
 - **`alt` sin disponibilidad:** si algún producto se agotó, no se reserva ni se cobra; se informan los productos agotados y las alternativas disponibles (HU-02 CA4, RP-03).

@@ -33,7 +33,7 @@ Como **estudiante**, quiero **pagar por adelantado y consultar la confirmación,
 
 **Actividad:** AC-03, AC-05, AC-07. **Requisitos:** RP-04, RP-07, RP-10, RP-18. **Evidencia:** H1, H6, H12, H13, H14.
 
-- [ ] CA1. Solo se muestra confirmado cuando el servidor verifica el pago y asegura las unidades; una respuesta repetida no crea otro pedido.
+- [ ] CA1. Solo se muestra confirmado cuando el servidor verifica el pago y asegura las unidades; una respuesta repetida no crea otro pedido. El resultado lo informa la Pasarela de pago; en la demostración lo emite un control de la pasarela simulada, separado de la acción con la que el estudiante envía el pago, y el estudiante no decide la aprobación.
 - [ ] CA2. El pedido confirmado muestra código único y estado; la estimación se rotula informativa, sin exigir reservar una franja de retiro.
 - [ ] CA3. Sin parámetros vigentes se muestra “estimación no disponible”; no se promete entrega en 5–10 min por defecto.
 - [ ] CA4. Si falla o se cancela el pago, se informa el resultado y se conserva la selección para reintentar, revalidando precio y stock.

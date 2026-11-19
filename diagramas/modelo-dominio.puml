@@ -38,6 +38,7 @@ class Existencia {
   unidadesAsignadas
   unidadesReservadas
   unidadesConsumidas
+  fechaHoraActualizacion
   /unidadesVendibles
 }
 

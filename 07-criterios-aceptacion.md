@@ -80,6 +80,8 @@ Historia: Como estudiante, quiero pagar por adelantado y consultar la confirmaci
 
 Requisitos: RP-04, RP-07, RP-10, RP-18 · Casos de uso: CU-02, CU-07 · Secuencia: DSS-01
 
+Nota de demostración: la Pasarela de pago se simula; el resultado (aprobado, rechazado o cancelado) lo emite un control identificado como pasarela simulada, separado de la acción con la que el estudiante envía el pago. El servidor verifica el resultado antes de confirmar (HU-03 CA1).
+
 ```gherkin
 Característica: Pago y seguimiento de un pedido
 

@@ -13,13 +13,13 @@ Archivo fuente: [`./diagramas/modelo-dominio.puml`](./diagramas/modelo-dominio.p
 | Carrito | El puesto de comida que vende a los clientes y que opera por jornadas. | nombre, ubicación |
 | Jornada | Un día de operación de un carrito, durante el cual se asignan unidades al canal digital y se reciben pedidos. | fecha, horaApertura, horaCierre, recepciónDigital (abierta o cerrada) |
 | Producto | Un artículo que el carrito ofrece a la venta. | nombre, precio |
-| Existencia | Las unidades de un producto asignadas al canal digital en una jornada y el uso que se ha hecho de ellas. | unidadesAsignadas, unidadesReservadas, unidadesConsumidas, /unidadesVendibles (derivado: unidadesAsignadas − unidadesReservadas − unidadesConsumidas) |
+| Existencia | Las unidades de un producto asignadas al canal digital en una jornada y el uso que se ha hecho de ellas. | unidadesAsignadas, unidadesReservadas, unidadesConsumidas, fechaHoraActualizacion (último cambio de disponibilidad, exigido por RP-01), /unidadesVendibles (derivado: unidadesAsignadas − unidadesReservadas − unidadesConsumidas) |
 | AjusteExistencia | Una corrección registrada sobre las unidades de una existencia, con su motivo y su responsable. | cantidad, motivo, origen, responsable, fechaHora |
 | Cliente | La persona que realiza pedidos y a quien se le avisa sobre ellos. | nombre, contacto |
 | Pedido | La compra anticipada de uno o más productos, desde que se arma hasta que se entrega. | código, estado, estimaciónPreparación (informativa), fechaHoraConfirmación, fechaHoraListo, fechaHoraEntrega, /total (derivado: suma de cantidad × precioUnitario de sus detalles) |
 | DetallePedido | Cada producto con su cantidad dentro de un pedido, al precio que el cliente aceptó. | cantidad, precioUnitario |
 | Pago | Un intento de pago de un pedido hecho a través de la pasarela de pago externa; el negocio solo conserva su referencia y su resultado. | referenciaPasarela, monto, resultado (pendiente, rechazado o confirmado), fechaHora |
-| Reserva | La retención transitoria de las unidades de un pedido mientras su pago está en curso; su plazo propuesto es de 3 minutos. | fechaHoraInicio, fechaHoraVencimiento, estado (activa, consumida, liberada o vencida) |
+| Reserva | La retención transitoria de las unidades de un pedido mientras su pago está en curso; su plazo propuesto es de 3 minutos. | fechaHoraInicio, fechaHoraVencimiento, estado (activa, consumida, liberada) |
 | Aviso | Una comunicación al cliente sobre su pedido, por ejemplo que está listo o que cambió su estimación. | motivo, fechaHoraEnvío, resultado (enviado o fallido) |
 
 ## Asociaciones
