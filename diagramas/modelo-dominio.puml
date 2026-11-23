@@ -83,6 +83,13 @@ class Reserva {
   estado
 }
 
+class Conciliacion {
+  estado
+  motivo
+  fechaHora
+  referenciaReversa
+}
+
 class Aviso {
   motivo
   fechaHoraEnvío
@@ -100,5 +107,6 @@ Producto "1" -- "0..*" DetallePedido : se pide en >
 Pedido "1" -- "0..*" Pago : se paga con >
 Pedido "1" -- "0..*" Reserva : asegura unidades con >
 Pedido "1" -- "0..*" Aviso : genera >
+Pago "1" -- "0..1" Conciliacion : se resuelve con >
 
 @enduml
