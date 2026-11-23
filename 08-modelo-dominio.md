@@ -20,6 +20,7 @@ Archivo fuente: [`./diagramas/modelo-dominio.puml`](./diagramas/modelo-dominio.p
 | DetallePedido | Cada producto con su cantidad dentro de un pedido, al precio que el cliente aceptó. | cantidad, precioUnitario |
 | Pago | Un intento de pago de un pedido hecho a través de la pasarela de pago externa; el negocio solo conserva su referencia y su resultado. | referenciaPasarela, monto, resultado (pendiente, rechazado o confirmado), fechaHora |
 | Reserva | La retención transitoria de las unidades de un pedido mientras su pago está en curso; su plazo propuesto es de 3 minutos. | fechaHoraInicio, fechaHoraVencimiento, estado (activa, consumida, liberada) |
+| Conciliacion | La resolución de un pago aprobado después de vencida su reserva: se confirma si aún hay unidades o se tramita su reembolso. | estado (en_resolucion, confirmada, reembolsada), motivo, fechaHora, referenciaReversa |
 | Aviso | Una comunicación al cliente sobre su pedido, por ejemplo que está listo o que cambió su estimación. | motivo, fechaHoraEnvío, resultado (enviado o fallido) |
 
 ## Asociaciones
@@ -36,6 +37,7 @@ Archivo fuente: [`./diagramas/modelo-dominio.puml`](./diagramas/modelo-dominio.p
 | se pide en | Producto – DetallePedido | 1 a 0..* | Cada detalle se refiere a un producto, y un producto puede aparecer en muchos detalles (HU-02, RP-02). |
 | se paga con | Pedido – Pago | 1 a 0..* | Un pedido puede necesitar varios intentos de pago si uno es rechazado o cancelado; cada pago corresponde a un solo pedido (HU-03, RP-04). |
 | asegura unidades con | Pedido – Reserva | 1 a 0..* | Cada intento de pago reserva las unidades del pedido y una reserva vencida no se reutiliza, por lo que un pedido puede tener varias reservas con una sola activa (HU-04, RP-05). |
+| se resuelve con | Pago – Conciliacion | 1 a 0..1 | Solo un pago aprobado tardío entra en conciliación, y como máximo una vez; un pago normal no tiene conciliación (HU-04, RP-05). |
 | genera | Pedido – Aviso | 1 a 0..* | Un pedido genera avisos (listo para retiro, cambio de estimación); cada aviso se refiere a un solo pedido (HU-06, RP-10). |
 
 ## Decisiones de modelado
