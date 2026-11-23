@@ -213,7 +213,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(nombres.some((nombre) => /tarjeta|cvv/i.test(nombre))).toBe(false);
   });
 
-  it('HU-04 · Dos pedidos compiten por la última unidad', async () => {
+  it('Escenario: Dos pedidos compiten por la última unidad', async () => {
     db.prepare(
       `UPDATE existencia SET unidades_asignadas = 1, unidades_reservadas = 0,
        unidades_consumidas = 0 WHERE producto_id = ?`,
@@ -241,7 +241,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(pagos.total).toBe(1);
   });
 
-  it('HU-04 · El pago se aprueba dentro del plazo de reserva', async () => {
+  it('Escenario: El pago se aprueba dentro del plazo de reserva', async () => {
     const agente = request.agent(app);
     const pago = await iniciarCompra(agente);
     const antes = existenciaDe(PRODUCTO);
@@ -259,7 +259,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(contarReservas()).toBe(1);
   });
 
-  it('HU-04 · La reserva vence sin pago aprobado y libera una sola vez', async () => {
+  it('Escenario: La reserva vence sin pago aprobado', async () => {
     const agente = request.agent(app);
     const pago = await iniciarCompra(agente);
     const antes = existenciaDe(PRODUCTO);
@@ -276,7 +276,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(existenciaDe(PRODUCTO).vendibles).toBe(despues.vendibles);
   });
 
-  it('HU-04 · Un nuevo intento exige una nueva reserva', async () => {
+  it('Escenario adicional: Un nuevo intento exige una nueva reserva', async () => {
     const agente = request.agent(app);
     const pago = await iniciarCompra(agente);
     await forzarVencimiento(agente, pago.pedidoId);
@@ -289,7 +289,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(estadoPedido(pago.pedidoId)).toBe('Pendiente de pago');
   });
 
-  it('HU-04 · Pago aprobado después del vencimiento, sin unidades disponibles', async () => {
+  it('Escenario: Pago aprobado después del vencimiento, sin unidades disponibles', async () => {
     const agente = request.agent(app);
     const pago = await iniciarCompra(agente);
     await forzarVencimiento(agente, pago.pedidoId);
@@ -319,7 +319,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
     expect(conciliacion.estado).toBe('reembolsada');
   });
 
-  it('HU-04 · Pago aprobado después del vencimiento, con unidades disponibles', async () => {
+  it('Escenario: Pago aprobado después del vencimiento, con unidades disponibles', async () => {
     const agente = request.agent(app);
     const pago = await iniciarCompra(agente);
     await forzarVencimiento(agente, pago.pedidoId);
