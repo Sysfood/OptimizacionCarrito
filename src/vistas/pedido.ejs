@@ -152,6 +152,16 @@
       </section>
     <% } %>
   <% } %>
+    <% if (pedido.estado === 'Pendiente de pago') { %>
+      <section class="panel-demo">
+        <h2>Panel de demostración</h2>
+        <p>Simula el vencimiento de la reserva para probar la liberación de unidades.</p>
+        <form class="demo-form" method="post" action="/demo/reserva/<%= pedido.id %>/vencer">
+          <button type="submit">Forzar vencimiento de la reserva (demo)</button>
+        </form>
+      </section>
+    <% } %>
+
 </main>
 
 <%- include('parciales/pie') %>

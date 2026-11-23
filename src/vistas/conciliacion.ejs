@@ -1,0 +1,32 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1><%= titulo %></h1>
+    <p>Tu pago fue aprobado después de que venciera la reserva y no fue posible confirmar el pedido.</p>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Pago en resolución</h2>
+    <p>Motivo: <%= motivo %>.</p>
+    <% if (estadoPedido === 'Reembolsado') { %>
+      <p>Se activó la <strong>reversa simulada</strong> y el pedido quedó <strong>Reembolsado</strong>. No pasó a preparación.</p>
+      <% if (referenciaReversa) { %>
+        <p>Referencia de reversa: <strong><%= referenciaReversa %></strong>.</p>
+      <% } %>
+    <% } else { %>
+      <p>El pedido está en conciliación y se resolverá sin pasarlo a preparación hasta asegurar stock y pago.</p>
+    <% } %>
+    <% if (fechaHora) { %>
+      <p>Registrado el <%= fechaHora %>.</p>
+    <% } %>
+  </div>
+
+  <div class="caja" style="margin-top:1.2rem">
+    <p>Estado del pedido: <span class="chip <%= estadoPedido === 'Reembolsado' ? 'rojo' : 'amar' %>"><%= estadoPedido %></span></p>
+    <p>Total del pedido: <strong><%= pedido.totalFormateado %></strong></p>
+    <p><a class="boton-secundario" href="/pedido/consultar">Consultar otro pedido</a></p>
+  </div>
+</main>
+
+<%- include('parciales/pie') %>

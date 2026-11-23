@@ -5,13 +5,14 @@
 **Asignatura:** CIN 324 — Ingeniería de Requisitos  
 **Rama de entrega:** `IngReq-Entrega-3`
 
-Esta entrega presenta **TurnoCarrito** con tres historias implementadas mediante OpenCode y OpenSpec. El pago usa una pasarela simulada.
+Esta entrega presenta **TurnoCarrito** con cuatro historias implementadas mediante OpenCode y OpenSpec. El pago usa una pasarela simulada.
 
 | Historia | Qué se puede demostrar |
 |---|---|
 | HU-01 | Consultar disponibilidad y ver productos agotados. |
 | HU-02 | Armar un pedido, revisar el total y revalidar precio y stock antes del pago. |
 | HU-03 | Simular un pago, obtener un código de retiro y consultar el estado del pedido. |
+| HU-04 | Reservar unidades durante el pago y resolver pagos tardios con una reversa simulada cuando no hay stock. |
 
 Consulta [cómo ejecutar la aplicación](#aplicación-turnocarrito--cómo-ejecutarla) para instalarla y probar los recorridos. La documentación que sigue conserva los antecedentes de las entregas anteriores.
 
@@ -118,13 +119,27 @@ El selector de rol de la barra superior es de demostración (`estudiante`, `vend
 
 La estimación aparece como **«Estimación no disponible»** mientras no se fije un texto: no hay parámetros reales de preparación en esta entrega.
 
+### Recorrido de HU-04
+
+HU-04 agrega el ciclo de vida completo de la reserva de unidades. Para probarlo:
+
+1. Arma un pedido y pulsa **Pagar**. Las unidades quedan **reservadas** por un plazo propuesto de 3 minutos y el pedido pasa a **Pendiente de pago**. Si dos estudiantes intentan tomar la última unidad, solo uno obtiene la reserva; el otro ve el producto como **agotado**.
+2. Con la reserva vigente, envía el pago y emite **aprobado**: la reserva se consume **una sola vez**, el pedido queda **Confirmado** y se descuentan las unidades. Repetir la notificación aprobada no descuenta stock dos veces.
+3. En **Mi pedido**, mientras el pago está pendiente, pulsa **Forzar vencimiento de la reserva (demo)**. La reserva se libera, las unidades vuelven a estar vendibles y el pedido pasa a **Pago no realizado** con la selección conservada.
+4. Tras el vencimiento, pulsa **Reintentar pago**: se revalidan precio y disponibilidad y se crea una **reserva nueva**; la vencida nunca se reutiliza.
+5. Para probar un **pago aprobado tardío**, fuerza el vencimiento y vuelve a la pasarela del pago original para emitir **aprobado**:
+   - Si quedan unidades, se aseguran en una sola operación y el pedido queda **Confirmado** (se registra una conciliación `confirmada`).
+   - Si no quedan unidades, el pedido queda en resolución y se activa la **reversa simulada**: la pantalla muestra **«Pago en resolución»** y **«reversa simulada»**, el pedido termina **Reembolsado** y **no pasa a preparación**.
+
+La reversa/reembolso es una simulación: el proveedor, el responsable y el plazo reales quedan por acordar (Derivación 1). No se capturan datos de tarjeta.
+
 ### Pruebas
 
 ```bash
 npm test
 ```
 
-Las cuatro pruebas de `tests/hu-01-consultar-disponibilidad.test.ts` corresponden a los cuatro escenarios Gherkin de HU-01. Las cinco pruebas de `tests/hu-02-armar-pedido-total.test.ts` corresponden a los cuatro escenarios Gherkin de HU-02 más un caso adicional de disponibilidad insuficiente. Las doce pruebas de `tests/hu-03-pagar-consultar-pedido.test.ts` cubren los seis escenarios Gherkin de HU-03 y casos adicionales: cancelación, pago sin disponibilidad, reintento con total distinto, código inexistente, códigos consecutivos y el nuevo «Resultado sin envío previo» (el servidor rechaza un resultado antes de que el estudiante envíe el pago). `tests/pago-unidad.test.ts` cubre las transiciones del pago, la reserva, la idempotencia y la consulta por código; `tests/catalogo-unidad.test.ts` y `tests/pedido-unidad.test.ts` cubren el cálculo de unidades vendibles, la fuente simulada, el catálogo, los totales, la validación de cantidades, las alternativas, el borrado del pedido y la revalidación. En total son **48 pruebas**.
+Las cuatro pruebas de `tests/hu-01-consultar-disponibilidad.test.ts` corresponden a los cuatro escenarios Gherkin de HU-01. Las cinco pruebas de `tests/hu-02-armar-pedido-total.test.ts` corresponden a los cuatro escenarios Gherkin de HU-02 más un caso adicional de disponibilidad insuficiente. Las doce pruebas de `tests/hu-03-pagar-consultar-pedido.test.ts` cubren los seis escenarios Gherkin de HU-03 y casos adicionales: cancelación, pago sin disponibilidad, reintento con total distinto, código inexistente, códigos consecutivos y el nuevo «Resultado sin envío previo» (el servidor rechaza un resultado antes de que el estudiante envíe el pago). `tests/pago-unidad.test.ts` cubre las transiciones del pago, la reserva, la idempotencia y la consulta por código; `tests/catalogo-unidad.test.ts` y `tests/pedido-unidad.test.ts` cubren el cálculo de unidades vendibles, la fuente simulada, el catálogo, los totales, la validación de cantidades, las alternativas, el borrado del pedido y la revalidación. Las pruebas de HU-04 se encuentran en `tests/hu-04-reservar-unidades.test.ts`.
 
 ### Estructura de la aplicación
 

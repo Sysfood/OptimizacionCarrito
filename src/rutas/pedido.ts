@@ -27,6 +27,7 @@ import {
   obtenerPagoPendiente,
   obtenerPedidoPorCodigo,
   procesarResultadoPago,
+  vencerReservaActiva,
 } from '../servicios/pago';
 import { leerCookie } from '../utiles/cookies';
 import {
@@ -532,6 +533,15 @@ export function crearRutasPedido(
       return;
     }
 
+    const pedidoActual = obtenerPedido(db, pago.pedidoId);
+    if (
+      pedidoActual?.estado === 'En conciliación' ||
+      pedidoActual?.estado === 'Reembolsado'
+    ) {
+      res.redirect(`/pedido/conciliacion/${pago.pedidoId}`);
+      return;
+    }
+
     if (!pago.referenciaPasarela) {
       res.status(409).send('El pago no tiene una referencia de pasarela');
       return;
@@ -619,6 +629,10 @@ export function crearRutasPedido(
           `/pedido/pago-no-realizado/${pago.pedidoId}?motivo=${proceso.resultado}`,
         );
         return;
+      case 'enConciliacion':
+      case 'reembolsado':
+        res.redirect(`/pedido/conciliacion/${pago.pedidoId}`);
+        return;
       case 'pagoNoEncontrado':
         res.status(404).send('Pago no encontrado');
         return;
@@ -654,6 +668,62 @@ export function crearRutasPedido(
       titulo: motivo === 'cancelado' ? 'Pago cancelado' : 'Pago rechazado',
       motivo,
       pedido: prepararPedido(pedido),
+    });
+  });
+
+  router.post('/demo/reserva/:pedidoId/vencer', (req, res) => {
+    const pedidoId = leerEnteroPositivo(req.params.pedidoId);
+    if (pedidoId === null) {
+      res.status(400).send('Pedido no válido');
+      return;
+    }
+
+    vencerReservaActiva(db, pedidoId);
+    res.redirect('/pedido');
+  });
+
+  router.get('/pedido/conciliacion/:pedidoId', (req, res) => {
+    const pedidoId = leerEnteroPositivo(req.params.pedidoId);
+    const pedido = pedidoId !== null ? obtenerPedido(db, pedidoId) : null;
+
+    if (!pedido) {
+      res.status(404).send('Pedido no encontrado');
+      return;
+    }
+    if (
+      pedido.estado !== 'En conciliación' &&
+      pedido.estado !== 'Reembolsado'
+    ) {
+      res.redirect('/pedido');
+      return;
+    }
+
+    const conciliacion = db
+      .prepare(
+        `SELECT c.estado AS estado, c.motivo AS motivo,
+                c.referencia_reversa AS referenciaReversa, c.fecha_hora AS fechaHora
+         FROM conciliacion c JOIN pago p ON p.id = c.pago_id
+         WHERE p.pedido_id = ? ORDER BY c.id DESC LIMIT 1`,
+      )
+      .get(pedido.id) as
+      | {
+          estado: string;
+          motivo: string;
+          referenciaReversa: string | null;
+          fechaHora: string;
+        }
+      | undefined;
+
+    res.status(200).render('conciliacion', {
+      titulo:
+        pedido.estado === 'Reembolsado'
+          ? 'Pago en resolución — reembolsado'
+          : 'Pago en resolución',
+      pedido: prepararPedido(pedido),
+      estadoPedido: pedido.estado,
+      motivo: conciliacion?.motivo ?? 'pago aprobado tardío',
+      referenciaReversa: conciliacion?.referenciaReversa ?? null,
+      fechaHora: conciliacion?.fechaHora ?? null,
     });
   });
 

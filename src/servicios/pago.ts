@@ -1,8 +1,13 @@
 import { fechaHoraLocal, fechaLocal, type Db } from '../db/conexion';
 import type { Pago } from '../dominio/pago';
-import type { Reserva } from '../dominio/reserva';
+import { reservaVigente, type Reserva } from '../dominio/reserva';
 import type { ResultadoPasarela, ServicioPago } from '../integraciones/pasarela-pago';
 import type { FuenteInventario } from '../integraciones/fuente-inventario';
+import {
+  crearReversaPagoSimulada,
+  type ServicioReversa,
+} from '../integraciones/reversa-pago';
+import { aplicarTransicionReserva, buscarReservaActiva } from './reserva';
 import {
   obtenerPedido,
   revalidarPedido,
@@ -22,16 +27,8 @@ interface FilaPago {
   fechaHora: string;
 }
 
-interface FilaReserva {
-  id: number;
-  pedidoId: number;
-  fechaHoraInicio: string;
-  fechaHoraVencimiento: string;
-  estado: Reserva['estado'];
-}
-
 class SinDisponibilidadError extends Error {
-  constructor(readonly productoId: number) {
+  constructor(readonly productoId?: number) {
     super('No hay unidades vendibles para reservar');
     this.name = 'SinDisponibilidadError';
   }
@@ -64,23 +61,61 @@ function buscarPago(db: Db, pagoId: number): Pago | null {
   return fila ?? null;
 }
 
-function buscarReservaActiva(db: Db, pedidoId: number): Reserva | null {
-  const fila = db
+/**
+ * Vence las reservas activas cuyo plazo terminó. Se llama antes de iniciar un
+ * pago y antes de procesar un resultado, porque no hay un temporizador en
+ * segundo plano (design.md, decisión 1).
+ */
+export function vencerReservasExpiradas(db: Db, pedidoId?: number): number[] {
+  const ahora = fechaHoraLocal();
+  const filas = db
     .prepare(
-      `SELECT
-         id AS id,
-         pedido_id AS pedidoId,
-         fecha_hora_inicio AS fechaHoraInicio,
-         fecha_hora_vencimiento AS fechaHoraVencimiento,
-         estado AS estado
-       FROM reserva
-       WHERE pedido_id = ? AND estado = 'activa'
-       ORDER BY id DESC
-       LIMIT 1`,
+      `SELECT id, pedido_id AS pedidoId FROM reserva
+       WHERE estado = 'activa' AND fecha_hora_vencimiento <= ?
+         ${pedidoId === undefined ? '' : 'AND pedido_id = ?'}`,
     )
-    .get(pedidoId) as FilaReserva | undefined;
+    .all(...(pedidoId === undefined ? [ahora] : [ahora, pedidoId])) as {
+    id: number;
+    pedidoId: number;
+  }[];
 
-  return fila ?? null;
+  const afectados: number[] = [];
+  for (const fila of filas) {
+    const transicion = aplicarTransicionReserva({
+      db,
+      reservaId: fila.id,
+      evento: 'vencimiento',
+      ahora,
+    });
+    if (transicion.tipo !== 'ok') continue;
+
+    db.prepare(
+      `UPDATE pedido SET estado = 'Pago no realizado'
+       WHERE id = ? AND estado = 'Pendiente de pago'`,
+    ).run(fila.pedidoId);
+    afectados.push(fila.pedidoId);
+  }
+  return afectados;
+}
+
+/** Control de demostración: fuerza el vencimiento de la reserva activa. */
+export function vencerReservaActiva(db: Db, pedidoId: number): boolean {
+  const reserva = buscarReservaActiva(db, pedidoId);
+  if (!reserva) return false;
+
+  const transicion = aplicarTransicionReserva({
+    db,
+    reservaId: reserva.id,
+    evento: 'vencimiento',
+    forzarVencimiento: true,
+  });
+  if (transicion.tipo !== 'ok') return false;
+
+  db.prepare(
+    `UPDATE pedido SET estado = 'Pago no realizado'
+     WHERE id = ? AND estado = 'Pendiente de pago'`,
+  ).run(pedidoId);
+  return true;
 }
 
 function generarCodigo(db: Db, fecha = new Date()): string {
@@ -135,6 +170,7 @@ export function iniciarPago(
   pasarela: ServicioPago,
   pedidoId: number,
 ): ResultadoInicioPago {
+  vencerReservasExpiradas(db);
   const pedido = obtenerPedido(db, pedidoId);
   if (
     !pedido ||
@@ -265,7 +301,155 @@ export type ResultadoProcesoPago =
   | { tipo: 'pagoNoEncontrado' }
   | { tipo: 'referenciaInvalida' }
   | { tipo: 'sinReservaActiva'; pedido: PedidoVista }
-  | { tipo: 'estadoInesperado'; pedido: PedidoVista };
+  | { tipo: 'estadoInesperado'; pedido: PedidoVista }
+  | { tipo: 'enConciliacion'; pedido: PedidoVista; motivo: string }
+  | { tipo: 'reembolsado'; pedido: PedidoVista; referenciaReversa: string };
+
+function referenciaReversaDe(db: Db, pagoId: number): string | null {
+  const fila = db
+    .prepare(
+      `SELECT referencia_reversa AS referenciaReversa FROM conciliacion
+       WHERE pago_id = ? AND referencia_reversa IS NOT NULL
+       ORDER BY id DESC LIMIT 1`,
+    )
+    .get(pagoId) as { referenciaReversa: string } | undefined;
+  return fila?.referenciaReversa ?? null;
+}
+
+/**
+ * Resuelve un pago aprobado después del vencimiento. Si aún hay unidades,
+ * las asegura en una sola operación y confirma; si no, registra la
+ * conciliación y activa la reversa/reembolso simulado, sin pasar a preparación.
+ */
+function conciliarPagoAprobado(
+  db: Db,
+  pago: Pago,
+  pedido: PedidoVista,
+  reversa: ServicioReversa,
+): ResultadoProcesoPago {
+  const anterior = db
+    .prepare(
+      `SELECT estado, motivo FROM conciliacion WHERE pago_id = ? ORDER BY id DESC LIMIT 1`,
+    )
+    .get(pago.id) as { estado: string; motivo: string } | undefined;
+
+  if (anterior?.estado === 'reembolsada') {
+    return {
+      tipo: 'reembolsado',
+      pedido,
+      referenciaReversa: referenciaReversaDe(db, pago.id) ?? 'sin referencia',
+    };
+  }
+  if (anterior?.estado === 'en_resolucion') {
+    return { tipo: 'enConciliacion', pedido, motivo: anterior.motivo };
+  }
+  if (pedido.estado === 'Confirmado' && pedido.codigo) {
+    return { tipo: 'confirmado', pedido, codigo: pedido.codigo };
+  }
+
+  const ahora = fechaHoraLocal();
+  const asegurar = db.transaction(() => {
+    const actual = obtenerPedido(db, pago.pedidoId);
+    if (!actual) throw new SinDisponibilidadError();
+    if (actual.estado === 'Confirmado' && actual.codigo) {
+      return {
+        tipo: 'yaConfirmado' as const,
+        pedido: actual,
+        codigo: actual.codigo,
+      };
+    }
+
+    const consumir = db.prepare(
+      `UPDATE existencia
+       SET unidades_consumidas = unidades_consumidas + ?,
+           fecha_hora_actualizacion = ?
+       WHERE jornada_id = ? AND producto_id = ?
+         AND unidades_asignadas - unidades_reservadas - unidades_consumidas >= ?`,
+    );
+    for (const detalle of actual.detalles) {
+      const cambio = consumir.run(
+        detalle.cantidad,
+        ahora,
+        actual.jornada.id,
+        detalle.productoId,
+        detalle.cantidad,
+      );
+      if (cambio.changes === 0) throw new SinDisponibilidadError(detalle.productoId);
+    }
+
+    db.prepare(
+      `INSERT INTO reserva (pedido_id, fecha_hora_inicio, fecha_hora_vencimiento, estado)
+       VALUES (?, ?, ?, 'consumida')`,
+    ).run(actual.id, ahora, ahora);
+
+    db.prepare(
+      `UPDATE pago SET resultado = 'confirmado' WHERE id = ? AND resultado = 'pendiente'`,
+    ).run(pago.id);
+
+    let codigo = '';
+    for (let intento = 0; intento < 2; intento += 1) {
+      try {
+        codigo = generarCodigo(db);
+        const cambio = db
+          .prepare(
+            `UPDATE pedido
+             SET estado = 'Confirmado', codigo = ?, fecha_hora_confirmacion = ?
+             WHERE id = ?`,
+          )
+          .run(codigo, ahora, actual.id);
+        if (cambio.changes === 0) throw new Error('No fue posible confirmar el pedido');
+        break;
+      } catch (error) {
+        if (intento === 0 && esColisionDeCodigo(error)) continue;
+        throw error;
+      }
+    }
+
+    db.prepare(
+      `INSERT INTO conciliacion (pago_id, estado, motivo, fecha_hora, referencia_reversa)
+       VALUES (?, 'confirmada', ?, ?, NULL)`,
+    ).run(pago.id, 'pago aprobado tardío con disponibilidad', ahora);
+
+    return {
+      tipo: 'confirmado' as const,
+      pedido: obtenerPedido(db, actual.id) ?? actual,
+      codigo,
+    };
+  });
+
+  try {
+    const resultado = asegurar.immediate();
+    return { tipo: 'confirmado', pedido: resultado.pedido, codigo: resultado.codigo };
+  } catch (error) {
+    if (!(error instanceof SinDisponibilidadError)) throw error;
+  }
+
+  const motivo = 'pago aprobado tardío sin disponibilidad';
+  const { referenciaReversa } = reversa.solicitarReversa(
+    pago.referenciaPasarela ?? '',
+    pago.monto,
+  );
+
+  db.transaction(() => {
+    const registro = db
+      .prepare(
+        `INSERT INTO conciliacion (pago_id, estado, motivo, fecha_hora, referencia_reversa)
+         VALUES (?, 'en_resolucion', ?, ?, NULL)`,
+      )
+      .run(pago.id, motivo, ahora);
+    db.prepare(`UPDATE pedido SET estado = 'En conciliación' WHERE id = ?`).run(pedido.id);
+    db.prepare(
+      `UPDATE conciliacion SET estado = 'reembolsada', referencia_reversa = ? WHERE id = ?`,
+    ).run(referenciaReversa, Number(registro.lastInsertRowid));
+    db.prepare(`UPDATE pedido SET estado = 'Reembolsado' WHERE id = ?`).run(pedido.id);
+  })();
+
+  return {
+    tipo: 'reembolsado',
+    pedido: obtenerPedido(db, pago.pedidoId) ?? pedido,
+    referenciaReversa,
+  };
+}
 
 /**
  * Aplica el resultado informado por la pasarela. Es idempotente por pago y por
@@ -274,6 +458,7 @@ export type ResultadoProcesoPago =
 export function procesarResultadoPago(
   db: Db,
   parametros: { pagoId: number; referencia: string; resultado: ResultadoPasarela },
+  reversa: ServicioReversa = crearReversaPagoSimulada(),
 ): ResultadoProcesoPago {
   const pago = buscarPago(db, parametros.pagoId);
   if (!pago) return { tipo: 'pagoNoEncontrado' };
@@ -282,6 +467,7 @@ export function procesarResultadoPago(
     return { tipo: 'referenciaInvalida' };
   }
 
+  vencerReservasExpiradas(db, pago.pedidoId);
   const pedido = obtenerPedido(db, pago.pedidoId);
   if (!pedido) return { tipo: 'pagoNoEncontrado' };
 
@@ -301,8 +487,27 @@ export function procesarResultadoPago(
     };
   }
 
+  if (pedido.estado === 'Reembolsado') {
+    return {
+      tipo: 'reembolsado',
+      pedido,
+      referenciaReversa: referenciaReversaDe(db, pago.id) ?? 'sin referencia',
+    };
+  }
+  if (pedido.estado === 'En conciliación') {
+    return {
+      tipo: 'enConciliacion',
+      pedido,
+      motivo: 'pago aprobado tardío en resolución',
+    };
+  }
+
   if (parametros.resultado === 'aprobado') {
-    return confirmarPago(db, pago, pedido);
+    const reserva = buscarReservaActiva(db, pedido.id);
+    if (reserva && reservaVigente(reserva, fechaHoraLocal())) {
+      return confirmarPago(db, pago, pedido);
+    }
+    return conciliarPagoAprobado(db, pago, pedido, reversa);
   }
 
   return rechazarPago(db, pago, pedido, parametros.resultado);
@@ -325,9 +530,13 @@ function confirmarPago(
   if (!reserva) {
     return { tipo: 'sinReservaActiva', pedido };
   }
+  const ahoraConfirmacion = fechaHoraLocal();
+  if (!reservaVigente(reserva, ahoraConfirmacion)) {
+    return { tipo: 'sinReservaActiva', pedido };
+  }
 
   const confirmar = db.transaction(() => {
-    const ahora = fechaHoraLocal();
+    const ahora = ahoraConfirmacion;
 
     const pagoActualizado = db
       .prepare(
@@ -340,39 +549,14 @@ function confirmarPago(
       throw new Error('El pago ya fue procesado');
     }
 
-    const reservaActualizada = db
-      .prepare(
-        `UPDATE reserva SET estado = 'consumida'
-         WHERE id = ? AND estado = 'activa'`,
-      )
-      .run(reserva.id);
-
-    if (reservaActualizada.changes === 0) {
-      throw new Error('La reserva ya no está activa');
-    }
-
-    const consumir = db.prepare(
-      `UPDATE existencia
-       SET unidades_reservadas = unidades_reservadas - ?,
-           unidades_consumidas = unidades_consumidas + ?,
-           fecha_hora_actualizacion = ?
-       WHERE jornada_id = ? AND producto_id = ?
-         AND unidades_reservadas >= ?`,
-    );
-
-    for (const detalle of pedido.detalles) {
-      const resultado = consumir.run(
-        detalle.cantidad,
-        detalle.cantidad,
-        ahora,
-        pedido.jornada.id,
-        detalle.productoId,
-        detalle.cantidad,
-      );
-
-      if (resultado.changes === 0) {
-        throw new Error('La reserva ya no cubre las unidades del pedido');
-      }
+    const transicion = aplicarTransicionReserva({
+      db,
+      reservaId: reserva.id,
+      evento: 'pagoAprobado',
+      ahora,
+    });
+    if (transicion.tipo !== 'ok') {
+      throw new Error(transicion.motivo);
     }
 
     for (let intento = 0; intento < 2; intento += 1) {
@@ -443,27 +627,14 @@ function rechazarPago(
     const reserva = buscarReservaActiva(db, pedido.id);
 
     if (reserva) {
-      db.prepare(
-        `UPDATE reserva SET estado = 'liberada'
-         WHERE id = ? AND estado = 'activa'`,
-      ).run(reserva.id);
-
-      const liberarUnidades = db.prepare(
-        `UPDATE existencia
-         SET unidades_reservadas = unidades_reservadas - ?,
-             fecha_hora_actualizacion = ?
-         WHERE jornada_id = ? AND producto_id = ?
-           AND unidades_reservadas >= ?`,
-      );
-
-      for (const detalle of pedido.detalles) {
-        liberarUnidades.run(
-          detalle.cantidad,
-          ahora,
-          pedido.jornada.id,
-          detalle.productoId,
-          detalle.cantidad,
-        );
+      const transicion = aplicarTransicionReserva({
+        db,
+        reservaId: reserva.id,
+        evento: 'pagoRechazado',
+        ahora,
+      });
+      if (transicion.tipo !== 'ok') {
+        throw new Error(transicion.motivo);
       }
     }
 
