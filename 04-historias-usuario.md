@@ -124,6 +124,15 @@ Como **estudiante**, quiero **conocer cualquier cargo de empaque antes de pagar*
 - [ ] CA3. Si no hay cargo acordado, no se agrega uno automáticamente.
 - [ ] CA4. Cambiar la configuración no modifica el cargo de pedidos ya pagados.
 
+## HU-11: Cliente VIP crea pedido con confirmación automática
+
+Como **cliente VIP**, quiero **crear un pedido que quede confirmado automáticamente con código de retiro**, para **recibir mi compra sin pagar en el momento y que el monto se sume a mi deuda**.
+
+## HU-12: Cliente VIP consulta y gestiona su deuda
+
+Como **cliente VIP**, quiero **ver el estado de mi deuda acumulada**, para **saber cuánto debo y poder saldarla cuando decida**.
+
+
 ## Cobertura de requisitos
 
 | Historia | Requisitos |
