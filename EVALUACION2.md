@@ -41,6 +41,20 @@ Criterios de Aceptacion=
 HU-04: Cambiar Y si se activa la reversa o el rembolso acordado por Si se activa el reembolso acordado
 
 usar el codigo de retiro, donde dice solamente codigo.
+----------------------
+
+Se crean Nuevos escenarios donde en las Nuevas HU 11,12.
+
+HU-11.-Compra del estudiante VIP, sin pago:
+ -Si no hay unidades disponibles, no se aprueba el pedido (No se le suma a la deuda)
+ -Un Usuario NO VIP no puede hacer un pedido sin pagar.
+ -El Usuario VIP puede ver su deuda, y si no ha comprado nada al principio empieza en $0.
+
+
+HU-12.-Consulta de la Deuda del estudiante VIP:
+ -El estudiante VIP ve su deuda
+ -El estudiante VIP tiene deuda
+ -El Estudiante VIP No tiene deuda
 
 
 
