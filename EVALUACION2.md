@@ -19,9 +19,7 @@ Modificar descripción de casos de uso
 
 -cambios a hu y gherkin
 
-Joaquin <sadkiqz666@gmail.com>
-10:56 (hace 0 minutos)
-para mí
+
 
 IDEA INHUMANIZADA
 ------------------
