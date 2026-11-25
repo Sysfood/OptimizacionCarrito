@@ -120,7 +120,7 @@ Característica: Pago y seguimiento de un pedido
     Cuando el estudiante consulta el estado del pedido
     Entonces se muestra el estado actual
     Y se informa que la estimación no está disponible
-    Y se aclara que el código identifica el pedido y no es una cita ni garantiza una hora de retiro
+    Y se aclara que el código de retiro identifica el pedido y no es una cita ni garantiza una hora de retiro
 
   Escenario: El pedido presenta un atraso
     Dado que el pedido fue confirmado y todavía no está listo
@@ -163,7 +163,7 @@ Característica: Reserva temporal de unidades durante el pago
     Cuando la Pasarela de pago informa que el pago fue aprobado
     Entonces el pedido no se confirma ni pasa a preparación
     Y se informa al estudiante que su pago está en resolución
-    Y se activa la reversa o el reembolso acordado
+    Y se activa el reembolso acordado
 
   Escenario: Pago aprobado después del vencimiento, con unidades disponibles
     Dado que la reserva del pedido ya venció
@@ -257,7 +257,7 @@ Característica: Actualización del estado y aviso de pedido listo
 
 ## HU-07 — Retirar un pedido identificado
 
-Historia: Como estudiante, quiero presentar el código de mi pedido listo, para recibir los productos pagados sin repetir la toma del pedido.
+Historia: Como estudiante, quiero presentar el código de retiro de mi pedido listo, para recibir los productos pagados sin repetir la toma del pedido.
 
 Requisitos: RP-07, RP-11, RP-20 · Caso de uso: CU-04
 
@@ -267,13 +267,13 @@ Característica: Retiro y entrega de un pedido
   Escenario: Entregar un pedido listo y pagado
     Dado que el estudiante presenta el código de retiro de un pedido
     Y el pedido tiene el pago confirmado y está listo para retiro
-    Cuando el vendedor valida el código y confirma la entrega
+    Cuando el vendedor valida el código de retiro y confirma la entrega
     Entonces el pedido pasa al estado entregado
     Y se registra la fecha y hora del retiro
     Y el pedido sale de los pendientes y queda en el historial
 
-  Escenario: Presentar un código inexistente
-    Dado que el código presentado no corresponde a ningún pedido
+  Escenario: Presentar un código de retiro inexistente
+    Dado que el código de retiro presentado no corresponde a ningún pedido
     Cuando el vendedor intenta validarlo
     Entonces se informa que el pedido no existe
     Y no se registra ninguna entrega
@@ -366,7 +366,78 @@ Característica: Consulta de ventas digitales y falta de stock
 
   Escenario: No existe conciliación con las ventas presenciales
     Dado que las ventas del software existente no están conciliadas con el canal digital
+
     Cuando el encargado consulta el reporte
     Entonces el reporte declara que cubre solo el canal digital
     Y no lo presenta como el total de ventas del negocio
+```
+## HU-11 — Cliente VIP crea pedido con confirmación automática
+
+Historia: Como cliente VIP, quiero crear un pedido que quede confirmado automáticamente con código de retiro, para recibir mi compra sin pagar en el momento y que el monto se sume a mi deuda.
+
+Requisitos: RP-22 (propuesto), RP-16 · Caso de uso: CU-08 (propuesto) · Secuencia: DSS-03 (propuesto)
+
+```gherkin
+Característica: Pedido del cliente VIP sin pago previo
+
+  Escenario: Pedido VIP confirmado y deuda aumentada
+    Dado que un cliente VIP tiene productos con unidades vendibles en su selección
+    Cuando crea el pedido
+    Entonces el pedido queda confirmado automáticamente sin pago previo
+    Y se le asigna un código de retiro único
+    Y el precio del pedido se suma a su deuda
+
+  Escenario: Pedido VIP sin unidades disponibles
+    Dado que un cliente VIP tiene un producto sin unidades vendibles
+    Cuando crea el pedido
+    Entonces el pedido no se aprueba y se informa el motivo
+    Y su deuda no cambia
+
+  Escenario: Un cliente que no es VIP no puede pedir sin pagar
+    Dado que un cliente no es VIP
+    Cuando intenta crear un pedido sin pagar
+    Entonces el pedido no se confirma
+    Y se le informa que debe pagar por la Pasarela de pago
+
+  Escenario: Deuda máxima alcanzada
+    Dado que la deuda de un cliente VIP alcanzó el máximo permitido
+    Cuando intenta crear un nuevo pedido
+    Entonces el pedido no se realiza
+    Y se le informa que debe saldar su deuda para continuar
+
+  Escenario: Se repite la solicitud de un pedido VIP
+    Dado que un pedido VIP ya fue confirmado
+    Cuando se repite la misma solicitud
+    Entonces no se crea otro pedido
+    Y la deuda no se suma una segunda vez
+```
+
+## HU-12 — Cliente VIP consulta y gestiona su deuda
+
+Historia: Como cliente VIP, quiero ver el estado de mi deuda acumulada, para saber cuánto debo y poder saldarla cuando decida.
+
+Requisitos: RP-23 (propuesto) · Caso de uso: CU-09 (propuesto)
+
+```gherkin
+Característica: Consulta de la deuda del cliente VIP
+
+  Escenario: El cliente VIP ve su deuda
+    Dado que un cliente VIP está autenticado
+    Cuando consulta su deuda
+    Entonces se muestra el monto total de su deuda
+
+  Escenario: El cliente VIP tiene deuda
+    Dado que un cliente VIP tiene pedidos aprobados sin pago previo
+    Cuando consulta su deuda
+    Entonces se muestra la suma del precio de esos pedidos
+
+  Escenario: El cliente VIP no tiene deuda
+    Dado que un cliente VIP aún no ha realizado pedidos
+    Cuando consulta su deuda
+    Entonces se muestra una deuda de $0
+
+  Escenario: Un cliente que no es VIP no accede a la deuda
+    Dado que un cliente no es VIP
+    Cuando intenta consultar una deuda
+    Entonces no se le muestra ninguna deuda
 ```
