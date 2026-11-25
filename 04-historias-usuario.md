@@ -34,11 +34,11 @@ Como **estudiante**, quiero **pagar por adelantado y consultar la confirmación,
 **Actividad:** AC-03, AC-05, AC-07. **Requisitos:** RP-04, RP-07, RP-10, RP-18. **Evidencia:** H1, H6, H12, H13, H14.
 
 - [ ] CA1. Solo se muestra confirmado cuando el servidor verifica el pago y asegura las unidades; una respuesta repetida no crea otro pedido. El resultado lo informa la Pasarela de pago; en la demostración lo emite un control de la pasarela simulada, separado de la acción con la que el estudiante envía el pago, y el estudiante no decide la aprobación.
-- [ ] CA2. El pedido confirmado muestra código único y estado; la estimación se rotula informativa, sin exigir reservar una franja de retiro.
+- [ ] CA2. El pedido confirmado muestra código de retiro único y estado; la estimación se rotula informativa, sin exigir reservar una franja de retiro.
 - [ ] CA3. Sin parámetros vigentes se muestra “estimación no disponible”; no se promete entrega en 5–10 min por defecto.
 - [ ] CA4. Si falla o se cancela el pago, se informa el resultado y se conserva la selección para reintentar, revalidando precio y stock.
 - [ ] CA5. Si hay atraso, se informa el nuevo estado/estimación cuando esté disponible; no se cancela automáticamente ni se presume que el estudiante abandona.
-- [ ] CA6. Código y detalle permanecen consultables hasta la entrega. La captura de tarjeta ocurre en la pasarela; no queda número completo ni CVV en almacenamiento o registros propios.
+- [ ] CA6. El código de retiro y el detalle permanecen consultables hasta la entrega. La captura de tarjeta ocurre en la pasarela; no queda número completo ni CVV en almacenamiento o registros propios.
 
 ## HU-04: Mantener reservadas las unidades durante el pago
 
@@ -49,7 +49,7 @@ Como **estudiante**, quiero **que se reserven mis productos mientras pago**, par
 - [ ] CA1. Dos intentos simultáneos por la última unidad producen una sola reserva; el otro recibe aviso de falta de disponibilidad.
 - [ ] CA2. La confirmación consume la reserva una vez; notificaciones repetidas no descuentan nuevamente stock.
 - [ ] CA3. Rechazo, cancelación del pago o vencimiento liberan la reserva una vez. El plazo inicial propuesto es 3 min, configurable; no se incrementan existencias físicas.
-- [ ] CA4. Un pago exitoso tardío entra en conciliación: solo confirma si se obtiene stock atómicamente; sin stock, informa pago en resolución y activa la reversa/reembolso acordada, sin enviarlo a preparar.
+- [ ] CA4. Un pago exitoso tardío entra en conciliación: solo confirma si se obtiene stock atómicamente; sin stock, informa pago en resolución y activa el reembolso acordado, sin enviarlo a preparar.
 - [ ] CA5. Un reintento requiere una nueva validación y no reutiliza una reserva vencida.
 
 ## HU-05: Organizar la preparación de pedidos digitales
@@ -128,9 +128,25 @@ Como **estudiante**, quiero **conocer cualquier cargo de empaque antes de pagar*
 
 Como **cliente VIP**, quiero **crear un pedido que quede confirmado automáticamente con código de retiro**, para **recibir mi compra sin pagar en el momento y que el monto se sume a mi deuda**.
 
+**Actividad:** AC-01, AC-03, AC-04. **Requisitos:** RP-22 (propuesto), RP-16.
+
+- [ ] CA1. Si hay unidades disponibles para todos los productos, el pedido del cliente VIP queda confirmado automáticamente, sin pago previo y sin pasar por la Pasarela de pago, y muestra su código de retiro único y su estado.
+- [ ] CA2. Al aprobarse el pedido, su precio total se suma a la deuda del cliente VIP.
+- [ ] CA3. Si no hay unidades disponibles, el pedido no se aprueba, se informa el motivo y no se suma nada a la deuda.
+- [ ] CA4. Un cliente que no es VIP no puede crear un pedido sin pagar; debe pagar por la Pasarela de pago para que el pedido quede confirmado.
+- [ ] CA5. Si la deuda del cliente VIP alcanza el máximo permitido, el pedido no se realiza hasta que la deuda sea saldada. El monto máximo queda por validar con el vendedor; no se asume un valor.
+- [ ] CA6. Una solicitud repetida no crea otro pedido ni suma la deuda dos veces.
+
 ## HU-12: Cliente VIP consulta y gestiona su deuda
 
 Como **cliente VIP**, quiero **ver el estado de mi deuda acumulada**, para **saber cuánto debo y poder saldarla cuando decida**.
+
+**Actividad:** AC-05. **Requisitos:** RP-23 (propuesto).
+
+- [ ] CA1. El cliente VIP puede ver el monto total de su deuda.
+- [ ] CA2. Si tiene pedidos aprobados sin pago previo, la deuda muestra la suma de sus precios.
+- [ ] CA3. Si aún no ha comprado nada, la deuda se muestra en $0.
+- [ ] CA4. Un cliente que no es VIP no tiene acceso a la consulta de deuda.
 
 
 ## Cobertura de requisitos
@@ -147,5 +163,7 @@ Como **cliente VIP**, quiero **ver el estado de mi deuda acumulada**, para **sab
 | HU-08 | RP-12, RP-14, RP-16 |
 | HU-09 | RP-06, RP-13 |
 | HU-10 candidata | RP-21 |
+| HU-11 | RP-22 (propuesto), RP-16 |
+| HU-12 | RP-23 (propuesto) |
 
 RP-15 se verifica con una prueba de carga transversal, una vez acordado su perfil. Los checkboxes documentan criterios; no indican pruebas ejecutadas. No se define política automática de pedidos pagados y no retirados.
