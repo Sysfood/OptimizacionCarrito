@@ -45,6 +45,27 @@ Variantes representadas:
 - **`alt` aviso fallido:** si el aviso no llega por falta de conexión o de permisos, se registra el fallo y se informa al vendedor; el estado sigue consultable (HU-06 CA4, RP-10).
 - **`opt` consulta del estudiante:** el estudiante puede consultar el estado de su pedido con su código en cualquier momento, aunque el aviso no le haya llegado (RP-10).
 
+## DSS-03 — Crear pedido VIP sin pago previo y consultar deuda
+
+- Casos de uso: CU-08 y CU-09 (propuestos)
+- Historias: [HU-11](./04-historias-usuario.md#hu-11-cliente-vip-crea-pedido-con-confirmación-automática) y [HU-12](./04-historias-usuario.md#hu-12-cliente-vip-consulta-y-gestiona-su-deuda)
+- Sistemas externos que participan: ninguno (no participa la Pasarela de pago)
+- Requisitos: RP-22 y RP-23 (propuestos), RP-16
+
+![DSS-03](./diagramas/dss-03.png)
+
+Archivo fuente: [`./diagramas/dss-03.puml`](./diagramas/dss-03.puml)
+
+Escenario principal: el cliente VIP crea su pedido y TurnoCarrito verifica que sea VIP y que su deuda esté bajo el máximo. Luego revalida la disponibilidad, descuenta las existencias, confirma el pedido con su código de retiro y suma el total del pedido a la deuda del cliente. La deuda es un atributo del cliente VIP y se guarda dentro del sistema (caja negra); no hay cobro ni Pasarela de pago.
+
+Variantes representadas:
+
+- **`alt` el cliente no es VIP:** el pedido no se confirma y se le informa que debe pagar por la Pasarela de pago, como en DSS-01 (HU-11 CA4).
+- **`alt` solicitud repetida:** si el pedido ya fue confirmado, no se crea otro ni se suma la deuda dos veces; se devuelve el mismo código de retiro (HU-11 CA6, RP-16).
+- **`alt` deuda máxima alcanzada:** el pedido no se realiza y se informa que debe saldar su deuda (HU-11 CA5). El monto máximo queda por validar con el vendedor.
+- **`alt` sin disponibilidad:** el pedido no se aprueba, se informan los productos agotados y la deuda no cambia (HU-11 CA3).
+- **`opt` consultar deuda:** el cliente VIP consulta el monto total de su deuda; si aún no tiene pedidos, se muestra $0 (HU-12 CA1–CA3).
+
 ## Correspondencia con los diagramas de estado
 
 | Mensaje en la secuencia | Evento en el diagrama de estado | Transición |
