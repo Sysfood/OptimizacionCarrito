@@ -1,0 +1,21 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1><%= titulo %></h1>
+    <p>El pedido no se realizó.</p>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Debes saldar tu deuda para continuar</h2>
+    <p>Tu deuda actual es <strong data-deuda="<%= deudaFormateada %>"><%= deudaFormateada %></strong><% if (maximaFormateada) { %> y alcanzó el máximo permitido (<strong><%= maximaFormateada %></strong>)<% } %>.</p>
+    <p>Tu selección se conserva: podrás confirmar el pedido cuando la deuda sea saldada.</p>
+  </div>
+
+  <div class="acciones-pedido">
+    <a class="boton-principal" href="/deuda">Ver mi deuda</a>
+    <a class="boton-secundario" href="/pedido">Volver a mi pedido</a>
+  </div>
+</main>
+
+<%- include('parciales/pie') %>

@@ -34,7 +34,7 @@ class SinDisponibilidadError extends Error {
   }
 }
 
-function sumarMinutos(fechaHora: string, minutos: number): string {
+export function sumarMinutos(fechaHora: string, minutos: number): string {
   const [fecha, hora = '00:00:00'] = fechaHora.split(' ');
   const [anio, mes, dia] = fecha.split('-').map(Number);
   const [horas, minutosActuales, segundos = 0] = hora.split(':').map(Number);
@@ -118,7 +118,7 @@ export function vencerReservaActiva(db: Db, pedidoId: number): boolean {
   return true;
 }
 
-function generarCodigo(db: Db, fecha = new Date()): string {
+export function generarCodigo(db: Db, fecha = new Date()): string {
   const base = `TC-${fechaLocal(fecha).replace(/-/g, '')}`;
   const fila = db
     .prepare(
@@ -134,7 +134,7 @@ function generarCodigo(db: Db, fecha = new Date()): string {
   return `${base}-${String(siguiente).padStart(4, '0')}`;
 }
 
-function esColisionDeCodigo(error: unknown): boolean {
+export function esColisionDeCodigo(error: unknown): boolean {
   return (
     error instanceof Error && /UNIQUE constraint failed: pedido\.codigo/.test(error.message)
   );

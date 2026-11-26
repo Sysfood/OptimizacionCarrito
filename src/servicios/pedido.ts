@@ -22,6 +22,9 @@ export interface DetallePedidoVista {
 
 export interface PedidoVista {
   id: number;
+  clienteId: number;
+  /** El cliente VIP puede confirmar pedidos sin pago previo (HU-11). */
+  esVip: boolean;
   estado: EstadoPedido;
   codigo: string | null;
   estimacionPreparacion: string | null;
@@ -54,6 +57,8 @@ export interface CambioDisponibilidad {
 
 interface FilaPedido {
   id: number;
+  clienteId: number;
+  esVip: number;
   estado: EstadoPedido;
   codigo: string | null;
   estimacionPreparacion: string | null;
@@ -85,6 +90,8 @@ function buscarPedido(db: Db, pedidoId: number): FilaPedido | null {
     .prepare(
       `SELECT
          p.id AS id,
+         p.cliente_id AS clienteId,
+         c.es_vip AS esVip,
          p.estado AS estado,
          p.codigo AS codigo,
          p.estimacion_preparacion AS estimacionPreparacion,
@@ -96,6 +103,7 @@ function buscarPedido(db: Db, pedidoId: number): FilaPedido | null {
          j.recepcion_digital AS recepcionDigital
        FROM pedido p
        JOIN jornada j ON j.id = p.jornada_id
+       JOIN cliente c ON c.id = p.cliente_id
        WHERE p.id = ?`,
     )
     .get(pedidoId) as FilaPedido | undefined;
@@ -154,6 +162,8 @@ export function obtenerPedido(db: Db, pedidoId: number): PedidoVista | null {
 
   return {
     id: pedido.id,
+    clienteId: pedido.clienteId,
+    esVip: Boolean(pedido.esVip),
     estado: pedido.estado,
     codigo: pedido.codigo,
     estimacionPreparacion: pedido.estimacionPreparacion,
@@ -170,27 +180,43 @@ export function obtenerPedido(db: Db, pedidoId: number): PedidoVista | null {
   };
 }
 
+function perteneceAlCliente(pedido: FilaPedido, clienteId: number | null): boolean {
+  return clienteId === null || pedido.clienteId === clienteId;
+}
+
 function resolverPedidoEnEdicion(
   db: Db,
   pedidoId: number | null,
   jornadaId: number,
+  clienteId: number | null,
 ): number {
   if (pedidoId !== null) {
     const existente = buscarPedido(db, pedidoId);
 
-    if (existente && estaEnEdicion(existente) && existente.jornadaId === jornadaId) {
+    if (
+      existente &&
+      estaEnEdicion(existente) &&
+      existente.jornadaId === jornadaId &&
+      perteneceAlCliente(existente, clienteId)
+    ) {
       return existente.id;
     }
   }
 
-  const cliente = db
-    .prepare('SELECT id FROM cliente WHERE contacto = ?')
-    .get(CONTACTO_CLIENTE_DEMO) as { id: number } | undefined;
+  let propietario = clienteId;
 
-  if (!cliente) {
-    throw new Error(
-      'Falta el cliente de demostración. Ejecuta npm run db:seed antes de usar el pedido.',
-    );
+  if (propietario === null) {
+    const cliente = db
+      .prepare('SELECT id FROM cliente WHERE contacto = ?')
+      .get(CONTACTO_CLIENTE_DEMO) as { id: number } | undefined;
+
+    if (!cliente) {
+      throw new Error(
+        'Falta el cliente de demostración. Ejecuta npm run db:seed antes de usar el pedido.',
+      );
+    }
+
+    propietario = cliente.id;
   }
 
   const resultado = db
@@ -198,7 +224,7 @@ function resolverPedidoEnEdicion(
       `INSERT INTO pedido (cliente_id, jornada_id, estado)
        VALUES (?, ?, ?)`,
     )
-    .run(cliente.id, jornadaId, ESTADO_EN_EDICION);
+    .run(propietario, jornadaId, ESTADO_EN_EDICION);
 
   return Number(resultado.lastInsertRowid);
 }
@@ -249,9 +275,16 @@ export type ResultadoAgregar =
 export function agregarProducto(
   db: Db,
   fuente: FuenteInventario,
-  parametros: { pedidoId: number | null; productoId: number; cantidad: number },
+  parametros: {
+    pedidoId: number | null;
+    productoId: number;
+    cantidad: number;
+    /** Dueño del pedido. Si se omite, se usa el estudiante de demostración. */
+    clienteId?: number;
+  },
 ): ResultadoAgregar {
   const { pedidoId, productoId, cantidad } = parametros;
+  const clienteId = parametros.clienteId ?? null;
 
   if (!Number.isSafeInteger(cantidad) || cantidad < 1) {
     return { tipo: 'cantidadInvalida' };
@@ -271,7 +304,8 @@ export function agregarProducto(
   const pedidoUtilizable =
     pedidoExistente &&
     estaEnEdicion(pedidoExistente) &&
-    pedidoExistente.jornadaId === catalogo.jornada.id
+    pedidoExistente.jornadaId === catalogo.jornada.id &&
+    perteneceAlCliente(pedidoExistente, clienteId)
       ? pedidoExistente
       : null;
 
@@ -292,7 +326,7 @@ export function agregarProducto(
   }
 
   const aplicar = db.transaction(() => {
-    const pedido = resolverPedidoEnEdicion(db, pedidoId, catalogo.jornada.id);
+    const pedido = resolverPedidoEnEdicion(db, pedidoId, catalogo.jornada.id, clienteId);
 
     db.prepare(
       `INSERT INTO detalle_pedido

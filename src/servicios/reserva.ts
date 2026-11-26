@@ -6,8 +6,19 @@ import {
   type Reserva,
 } from '../dominio/reserva';
 
-/** Eventos del ciclo de vida de Reserva, derivados de EST-02. */
-export type EventoReserva = 'pagoAprobado' | 'pagoRechazado' | 'vencimiento';
+/**
+ * Eventos del ciclo de vida de Reserva, derivados de EST-02. Los dos últimos
+ * son del flujo del cliente VIP, que no genera pago: `aprobacionVip` consume la
+ * reserva y `deudaMaximaExcedida` la libera.
+ */
+export type EventoReserva =
+  | 'pagoAprobado'
+  | 'pagoRechazado'
+  | 'vencimiento'
+  | 'aprobacionVip'
+  | 'deudaMaximaExcedida';
+
+const EVENTOS_QUE_CONSUMEN: EventoReserva[] = ['pagoAprobado', 'aprobacionVip'];
 
 interface FilaReserva {
   id: number;
@@ -84,7 +95,7 @@ export function aplicarTransicionReserva(params: {
   return params.db.transaction(() => {
     const detalles = detallesDelPedido(params.db, reserva.pedidoId);
 
-    if (params.evento === 'pagoAprobado') {
+    if (EVENTOS_QUE_CONSUMEN.includes(params.evento)) {
       const consumir = params.db.prepare(
         `UPDATE existencia
          SET unidades_reservadas = unidades_reservadas - ?,
@@ -123,8 +134,9 @@ export function aplicarTransicionReserva(params: {
       }
     }
 
-    const estadoDestino: EstadoReserva =
-      params.evento === 'pagoAprobado' ? 'consumida' : 'liberada';
+    const estadoDestino: EstadoReserva = EVENTOS_QUE_CONSUMEN.includes(params.evento)
+      ? 'consumida'
+      : 'liberada';
     const cambio = params.db
       .prepare(`UPDATE reserva SET estado = ? WHERE id = ? AND estado = 'activa'`)
       .run(estadoDestino, reserva.id);

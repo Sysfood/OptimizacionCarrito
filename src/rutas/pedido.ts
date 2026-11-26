@@ -9,6 +9,10 @@ import type {
   ServicioPago,
 } from '../integraciones/pasarela-pago';
 import {
+  crearPoliticaDeudaSimulada,
+  type PoliticaDeuda,
+} from '../integraciones/politica-deuda';
+import {
   aceptarNuevoTotal,
   agregarProducto,
   actualizarCantidad,
@@ -29,6 +33,7 @@ import {
   procesarResultadoPago,
   vencerReservaActiva,
 } from '../servicios/pago';
+import { clienteDelRol, confirmarPedidoVip } from '../servicios/deuda';
 import { leerCookie } from '../utiles/cookies';
 import {
   alternativasParaVista,
@@ -184,6 +189,7 @@ export function crearRutasPedido(
   db: Db,
   fuente: FuenteInventario,
   pasarela: ServicioPago,
+  politicaDeuda: PoliticaDeuda = crearPoliticaDeudaSimulada(db),
 ): Router {
   const router = Router();
 
@@ -220,6 +226,7 @@ export function crearRutasPedido(
       pedidoId: leerPedidoId(req),
       productoId,
       cantidad,
+      clienteId: clienteDelRol(db, String(res.locals.rol ?? 'estudiante')).id,
     });
 
     switch (resultado.tipo) {
@@ -440,6 +447,65 @@ export function crearRutasPedido(
     switch (resultado.tipo) {
       case 'ok':
         res.redirect(`/demo/pasarela/${resultado.pagoId}`);
+        return;
+      case 'cambios':
+        renderizarCambios(res, {
+          precios: resultado.precios,
+          disponibilidad: resultado.disponibilidad,
+          totalAnterior: resultado.totalAnterior,
+          totalNuevo: resultado.totalNuevo,
+          puedeAceptar: resultado.disponibilidad.length === 0,
+        });
+        return;
+      case 'disponibilidad':
+        renderizarCambios(res, {
+          precios: [],
+          disponibilidad: resultado.disponibilidad,
+          totalAnterior: resultado.pedido.total,
+          totalNuevo: resultado.pedido.total,
+          puedeAceptar: false,
+        });
+        return;
+      case 'noDisponible':
+        mostrarNoDisponible(db, res, resultado.motivo);
+        return;
+      case 'sinPedido':
+        res.clearCookie(COOKIE_PEDIDO, { path: '/' });
+        res.redirect('/pedido');
+        return;
+    }
+  });
+
+  router.post('/pedido/confirmar-vip', (req, res) => {
+    const pedidoId = leerPedidoId(req);
+
+    if (pedidoId === null) {
+      res.redirect('/pedido');
+      return;
+    }
+
+    const cliente = clienteDelRol(db, String(res.locals.rol ?? 'estudiante'));
+    const resultado = confirmarPedidoVip(db, fuente, politicaDeuda, pedidoId, cliente.id);
+
+    switch (resultado.tipo) {
+      case 'ok':
+      case 'yaConfirmado':
+        res.redirect(`/pedido/confirmacion/${resultado.pedido.id}`);
+        return;
+      case 'noVip':
+        res.status(403).render('no-vip', {
+          titulo: 'Pedido sin pago previo',
+          mensaje:
+            'Solo los clientes VIP pueden confirmar un pedido sin pagar. Debes pagar por la Pasarela de pago para que el pedido quede confirmado.',
+        });
+        return;
+      case 'deudaMaxima':
+        res.status(409).render('deuda-maxima', {
+          titulo: 'Deuda máxima alcanzada',
+          deudaFormateada: formatoPrecio.format(resultado.deuda),
+          maximaFormateada:
+            resultado.maxima === null ? null : formatoPrecio.format(resultado.maxima),
+        });
         return;
       case 'cambios':
         renderizarCambios(res, {

@@ -1,0 +1,64 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1>Mi deuda <span class="insignia insignia--vip insignia-titulo">★ VIP</span></h1>
+    <p>Suma de los pedidos que confirmaste sin pago previo.</p>
+  </section>
+
+  <div class="aviso aviso--exito" role="status">
+    <h2>Deuda acumulada</h2>
+    <p class="total-cambio">Debes <strong data-deuda="<%= deuda %>"><%= deudaFormateada %></strong>.</p>
+    <% if (deudaMaximaFormateada) { %>
+      <p class="nota-codigo">Máximo permitido: <%= deudaMaximaFormateada %>. Al alcanzarlo no podrás confirmar nuevos pedidos hasta saldar la deuda.</p>
+    <% } %>
+  </div>
+
+  <% if (movimientos.length === 0) { %>
+    <p class="nota-codigo">Aún no tienes movimientos de deuda.</p>
+  <% } else { %>
+    <table class="tabla-pedido">
+      <thead>
+        <tr>
+          <th>Movimiento</th>
+          <th>Pedido</th>
+          <th>Monto</th>
+          <th>Fecha</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% movimientos.forEach(function (movimiento) { %>
+          <tr data-tipo="<%= movimiento.tipo %>">
+            <td><%= movimiento.tipo === 'cargo' ? 'Pedido sin pago previo' : 'Pago de deuda' %></td>
+            <td><%= movimiento.pedidoId ? '#' + movimiento.pedidoId : '—' %></td>
+            <td><%= movimiento.montoFormateado %></td>
+            <td><%= movimiento.fechaHoraFormateada %></td>
+          </tr>
+        <% }); %>
+      </tbody>
+    </table>
+  <% } %>
+
+  <div class="acciones-pedido">
+    <a class="boton-secundario" href="/catalogo">Ir al catálogo</a>
+    <a class="boton-secundario" href="/pedido">Mi pedido</a>
+  </div>
+
+  <section class="panel-demo">
+    <h2>Panel de demostración</h2>
+    <p>Estos controles simulan acciones del vendedor y la regla externa de deuda máxima.</p>
+
+    <form method="post" action="/demo/deuda/saldar">
+      <button type="submit">Registrar pago de la deuda completa</button>
+    </form>
+
+    <form class="demo-form" method="post" action="/demo/deuda-maxima">
+      <label>Deuda máxima (CLP, vacío = sin máximo)
+        <input type="number" name="monto" min="0" step="1" placeholder="Sin máximo">
+      </label>
+      <button type="submit">Fijar deuda máxima</button>
+    </form>
+  </section>
+</main>
+
+<%- include('parciales/pie') %>

@@ -1,0 +1,20 @@
+<%
+  var _vip = Boolean(esVip);
+  var _pasos = [
+    { texto: 'Armar pedido' },
+    { texto: _vip ? 'Confirmar' : 'Pagar en la pasarela', sinPago: _vip },
+    { texto: 'Retirar con código de retiro' }
+  ];
+%>
+<ol class="pasos" aria-label="Pasos de la compra" data-modo="<%= _vip ? 'vip' : 'estudiante' %>">
+  <% _pasos.forEach(function (paso, indice) {
+       var numero = indice + 1;
+       var clase = numero < pasoActual ? 'hecho' : (numero === pasoActual ? 'actual' : '');
+  %>
+    <li class="<%= clase %>"<%= numero === pasoActual ? ' aria-current=step' : '' %>>
+      <span class="numero"><%= numero < pasoActual ? '✓' : numero %></span>
+      <%= paso.texto %>
+      <% if (paso.sinPago) { %><span class="sin-pago">sin pago previo</span><% } %>
+    </li>
+  <% }); %>
+</ol>

@@ -1,8 +1,9 @@
 import { Router } from 'express';
 import { fechaHoraLocal, type Db } from '../db/conexion';
 import { obtenerJornadaVigente } from '../servicios/catalogo';
+import { clienteDelRol, configurarDeudaMaxima, saldarDeuda } from '../servicios/deuda';
 
-const ROLES_VALIDOS = ['estudiante', 'vendedor', 'encargado'];
+const ROLES_VALIDOS = ['estudiante', 'vip', 'vendedor', 'encargado'];
 
 function leerEntero(valor: unknown): number | null {
   const texto = String(valor ?? '').trim();
@@ -97,6 +98,30 @@ export function crearRutasDemo(db: Db): Router {
     }
 
     res.redirect('/pedido');
+  });
+
+  router.post('/deuda/saldar', (_req, res) => {
+    saldarDeuda(db, clienteDelRol(db, 'vip').id);
+    res.redirect('/deuda');
+  });
+
+  router.post('/deuda-maxima', (req, res) => {
+    const texto = String(req.body?.monto ?? '').trim();
+
+    if (texto === '') {
+      configurarDeudaMaxima(db, null);
+      res.redirect('/deuda');
+      return;
+    }
+
+    const monto = leerEntero(texto);
+    if (monto === null) {
+      res.status(400).send('Datos de demostración no válidos');
+      return;
+    }
+
+    configurarDeudaMaxima(db, monto);
+    res.redirect('/deuda');
   });
 
   return router;

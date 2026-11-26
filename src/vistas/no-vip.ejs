@@ -1,0 +1,19 @@
+<%- include('parciales/encabezado') %>
+
+<main class="contenedor">
+  <section class="intro">
+    <h1><%= titulo %></h1>
+  </section>
+
+  <div class="aviso" role="alert">
+    <h2>Acción solo para clientes VIP</h2>
+    <p><%= mensaje %></p>
+  </div>
+
+  <div class="acciones-pedido">
+    <a class="boton-secundario" href="/pedido">Volver a mi pedido</a>
+    <a class="boton-secundario" href="/catalogo">Ir al catálogo</a>
+  </div>
+</main>
+
+<%- include('parciales/pie') %>

@@ -4,6 +4,14 @@
   <section class="intro">
     <h1>Mi pedido</h1>
     <p>Revisa los productos, las cantidades y el total antes de continuar.</p>
+    <% if (pedido) { %>
+      <%- include('parciales/pasos-compra', {
+        esVip: pedido.esVip,
+        pasoActual: ['Confirmado', 'En preparación', 'Listo para retiro', 'Entregado'].includes(pedido.estado)
+          ? 3
+          : (pedido.estado === 'Pendiente de pago' ? 2 : 1)
+      }) %>
+    <% } %>
   </section>
 
   <% if (!fuenteDisponible) { %>
@@ -42,7 +50,7 @@
       <div class="aviso aviso--exito">
         <h2>Pedido confirmado</h2>
         <p>Tu código de retiro es <strong class="codigo-retiro" data-codigo="<%= pedido.codigo %>"><%= pedido.codigo %></strong>.</p>
-        <p>Estimación: <strong><%= pedido.estimacionTexto %></strong>. El código no es una cita ni garantiza una hora de retiro.</p>
+        <p>Estimación: <strong><%= pedido.estimacionTexto %></strong>. El código de retiro no es una cita ni garantiza una hora de retiro.</p>
         <p><a class="boton-principal" href="/pedido/confirmacion/<%= pedido.id %>">Ver confirmación</a></p>
       </div>
     <% } else if (pedido.estado === 'Pendiente de pago') { %>
@@ -112,7 +120,7 @@
       <a class="boton-secundario" href="/catalogo">Seguir comprando</a>
       <% if (pedido.editable && fuenteDisponible) { %>
         <form method="post" action="/pedido/revalidar">
-          <button type="submit" class="boton-principal">Continuar al pago</button>
+          <button type="submit" class="boton-principal"><%= pedido.esVip ? 'Revisar y confirmar' : 'Continuar al pago' %></button>
         </form>
       <% } %>
     </div>

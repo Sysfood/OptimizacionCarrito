@@ -10,9 +10,9 @@
     <h2>Pago en resolución</h2>
     <p>Motivo: <%= motivo %>.</p>
     <% if (estadoPedido === 'Reembolsado') { %>
-      <p>Se activó la <strong>reversa simulada</strong> y el pedido quedó <strong>Reembolsado</strong>. No pasó a preparación.</p>
+      <p>Se activó el <strong>reembolso acordado (simulado)</strong> y el pedido quedó <strong>Reembolsado</strong>. No pasó a preparación.</p>
       <% if (referenciaReversa) { %>
-        <p>Referencia de reversa: <strong><%= referenciaReversa %></strong>.</p>
+        <p>Referencia del reembolso: <strong><%= referenciaReversa %></strong>.</p>
       <% } %>
     <% } else { %>
       <p>El pedido está en conciliación y se resolverá sin pasarlo a preparación hasta asegurar stock y pago.</p>

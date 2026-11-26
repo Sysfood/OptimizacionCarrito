@@ -95,7 +95,15 @@ Abre http://localhost:3000/ o http://localhost:3000/catalogo.
 4. Pulsa «Restaurar fuente de inventario» para volver al catálogo normal.
 5. La página se recarga automáticamente cada 5 segundos para reflejar cambios de inventario.
 
-El selector de rol de la barra superior es de demostración (`estudiante`, `vendedor`, `encargado`); las pantallas de vendedor y encargado llegan en las historias siguientes.
+El selector de rol de la barra superior es de demostración (`estudiante`, `vip`, `vendedor`, `encargado`). `estudiante` y `vip` actúan como clientes distintos (el segundo con `es_vip = 1`); las pantallas de vendedor y encargado llegan en las historias siguientes.
+
+### Recorrido de HU-11 y HU-12 (cliente VIP)
+
+1. En el selector de rol elige **Cliente VIP**. Aparece el enlace **Mi deuda**, que arranca en **$0**.
+2. Agrega productos desde el catálogo y pulsa **Revisar y confirmar**. En lugar de «Pagar» aparece **Confirmar pedido sin pago previo**: el pedido queda **Confirmado** de inmediato, con su **código de retiro**, sin pasar por la pasarela y sin crear un pago. Su total se suma a la deuda.
+3. Si ya no hay unidades, el pedido no se aprueba y la deuda no cambia. Repetir la solicitud no crea otro pedido ni suma la deuda otra vez.
+4. Con el rol **Estudiante**, `POST /pedido/confirmar-vip` y `GET /deuda` responden 403: un cliente que no es VIP debe pagar por la pasarela.
+5. En **Mi deuda**, el **Panel de demostración** permite fijar una **deuda máxima** (regla externa simulada, sin valor por defecto) y **registrar el pago de la deuda completa**. Con la deuda en el máximo, un nuevo pedido no se realiza hasta saldarla; la reserva se activa y se libera sin consumir unidades.
 
 ### Recorrido de HU-02
 
@@ -139,7 +147,7 @@ La reversa/reembolso es una simulación: el proveedor, el responsable y el plazo
 npm test
 ```
 
-Las cuatro pruebas de `tests/hu-01-consultar-disponibilidad.test.ts` corresponden a los cuatro escenarios Gherkin de HU-01. Las cinco pruebas de `tests/hu-02-armar-pedido-total.test.ts` corresponden a los cuatro escenarios Gherkin de HU-02 más un caso adicional de disponibilidad insuficiente. Las doce pruebas de `tests/hu-03-pagar-consultar-pedido.test.ts` cubren los seis escenarios Gherkin de HU-03 y casos adicionales: cancelación, pago sin disponibilidad, reintento con total distinto, código inexistente, códigos consecutivos y el nuevo «Resultado sin envío previo» (el servidor rechaza un resultado antes de que el estudiante envíe el pago). `tests/pago-unidad.test.ts` cubre las transiciones del pago, la reserva, la idempotencia y la consulta por código; `tests/catalogo-unidad.test.ts` y `tests/pedido-unidad.test.ts` cubren el cálculo de unidades vendibles, la fuente simulada, el catálogo, los totales, la validación de cantidades, las alternativas, el borrado del pedido y la revalidación. Las pruebas de HU-04 se encuentran en `tests/hu-04-reservar-unidades.test.ts`.
+Las cuatro pruebas de `tests/hu-01-consultar-disponibilidad.test.ts` corresponden a los cuatro escenarios Gherkin de HU-01. Las cinco pruebas de `tests/hu-02-armar-pedido-total.test.ts` corresponden a los cuatro escenarios Gherkin de HU-02 más un caso adicional de disponibilidad insuficiente. Las doce pruebas de `tests/hu-03-pagar-consultar-pedido.test.ts` cubren los seis escenarios Gherkin de HU-03 y casos adicionales: cancelación, pago sin disponibilidad, reintento con total distinto, código inexistente, códigos consecutivos y el nuevo «Resultado sin envío previo» (el servidor rechaza un resultado antes de que el estudiante envíe el pago). `tests/pago-unidad.test.ts` cubre las transiciones del pago, la reserva, la idempotencia y la consulta por código; `tests/catalogo-unidad.test.ts` y `tests/pedido-unidad.test.ts` cubren el cálculo de unidades vendibles, la fuente simulada, el catálogo, los totales, la validación de cantidades, las alternativas, el borrado del pedido y la revalidación. Las pruebas de HU-04 se encuentran en `tests/hu-04-reservar-unidades.test.ts`. `tests/hu-11-pedido-vip-sin-pago.test.ts` y `tests/hu-12-consultar-deuda-vip.test.ts` cubren los escenarios Gherkin de HU-11 y HU-12 más casos adicionales (acumulación de deuda, saldar y volver a pedir, un estudiante que no puede confirmar un pedido VIP ajeno, sembración idempotente).
 
 ### Estructura de la aplicación
 
@@ -147,10 +155,10 @@ Las cuatro pruebas de `tests/hu-01-consultar-disponibilidad.test.ts` corresponde
 src/
   app.ts, server.ts
   db/ (conexión, migraciones, seed)
-  dominio/ (Carrito, Jornada, Producto, Existencia, Pedido, DetallePedido, Pago, Reserva)
-  servicios/ (catálogo, pedido, pago)
-  integraciones/ (fuente de inventario simulada, pasarela de pago simulada)
-  rutas/ (catálogo, pedido, pago/consulta y controles de demostración)
+  dominio/ (Carrito, Jornada, Producto, Existencia, Pedido, DetallePedido, Pago, Reserva, Cliente)
+  servicios/ (catálogo, pedido, pago, deuda)
+  integraciones/ (fuente de inventario simulada, pasarela de pago simulada, política de deuda máxima simulada)
+  rutas/ (catálogo, pedido, pago/consulta, deuda VIP y controles de demostración)
   utiles/ (lectura de cookies)
   vistas/ (EJS)
 tests/

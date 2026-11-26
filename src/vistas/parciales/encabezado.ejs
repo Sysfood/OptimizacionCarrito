@@ -15,7 +15,127 @@
       --acento-suave: #f3d9cd;
       --verde: #2f6b3a;
       --verde-suave: #e3f0e2;
+      --acento-hover: #9c3718;
+      --azul: #34495e;
+      --azul-suave: #e8eef4;
+      --oro: #d9a521;
+      --oro-suave: #f7e8c3;
     }
+
+    /* Tema del cliente VIP: dorado en lugar del terracota del estudiante. */
+    body.rol-vip {
+      --acento: #8a6212;
+      --acento-suave: var(--oro-suave);
+      --acento-hover: #6f4e0e;
+      --fondo: #f9f5e9;
+    }
+
+    body.rol-vip .barra { border-bottom: 3px solid var(--oro); }
+
+    .insignia {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .insignia--vip {
+      background: linear-gradient(135deg, #f3cf6b, var(--oro));
+      color: #4a3407;
+      box-shadow: 0 0 0 1px #b78a14 inset;
+    }
+
+    .insignia--estudiante {
+      background: var(--azul-suave);
+      color: var(--azul);
+      box-shadow: 0 0 0 1px #b9c8d8 inset;
+    }
+
+    .banda-rol {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0.55rem 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .banda-rol a { font-weight: 700; color: inherit; }
+
+    .banda-rol--vip {
+      background: linear-gradient(90deg, #fdf0c9, #f7e1a0);
+      color: #5b4108;
+      border-bottom: 1px solid #e3c36a;
+    }
+
+    .banda-rol--estudiante {
+      background: var(--azul-suave);
+      color: var(--azul);
+      border-bottom: 1px solid #cdd8e3;
+    }
+
+    .pasos {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      list-style: none;
+      margin: 1.1rem 0 0;
+      padding: 0;
+    }
+
+    .pasos li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.8rem;
+      border: 1px solid var(--borde);
+      border-radius: 999px;
+      background: var(--papel);
+      color: var(--suave);
+      font-size: 0.85rem;
+    }
+
+    .pasos .numero {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 1.35rem;
+      height: 1.35rem;
+      border-radius: 999px;
+      background: var(--borde);
+      color: var(--tinta);
+      font-size: 0.75rem;
+      font-weight: 800;
+    }
+
+    .pasos li.actual {
+      border-color: var(--acento);
+      background: var(--acento-suave);
+      color: var(--tinta);
+      font-weight: 700;
+    }
+
+    .pasos li.actual .numero { background: var(--acento); color: #fff; }
+    .pasos li.hecho .numero { background: var(--verde); color: #fff; }
+
+    .pasos .sin-pago {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #8a6212;
+    }
+
+    .insignia-titulo { margin-left: 0.6rem; vertical-align: middle; }
+
+    .aviso a:not([class]) { color: var(--acento); font-weight: 700; }
 
     * { box-sizing: border-box; }
 
@@ -343,7 +463,7 @@
       color: #fff;
     }
 
-    .boton-principal:hover { background: #9c3718; }
+    .boton-principal:hover { background: var(--acento-hover); }
 
     .boton-secundario {
       border: 1px solid var(--borde);
@@ -393,18 +513,29 @@
     }
   </style>
 </head>
-<body>
+<body class="rol-<%= rol %>">
   <header class="barra">
-    <div class="marca"><span class="punto"></span> TurnoCarrito</div>
+    <div class="marca">
+      <span class="punto"></span> TurnoCarrito
+      <% if (rol === 'vip') { %>
+        <span class="insignia insignia--vip" title="Cliente VIP: compra sin pago previo">★ VIP</span>
+      <% } else if (rol === 'estudiante') { %>
+        <span class="insignia insignia--estudiante" title="Estudiante: pago por adelantado">Paga antes</span>
+      <% } %>
+    </div>
     <nav class="navegacion" aria-label="Navegación principal">
       <a href="/catalogo">Catálogo</a>
       <a href="/pedido">Mi pedido</a>
       <a href="/pedido/consultar">Consultar pedido</a>
+      <% if (rol === 'vip') { %>
+        <a href="/deuda">Mi deuda</a>
+      <% } %>
     </nav>
     <form class="selector-rol" method="post" action="/demo/rol">
       <label for="rol">Rol de demostración</label>
       <select id="rol" name="rol" onchange="this.form.submit()">
         <option value="estudiante" <%= rol === 'estudiante' ? 'selected' : '' %>>Estudiante</option>
+        <option value="vip" <%= rol === 'vip' ? 'selected' : '' %>>Cliente VIP</option>
         <option value="vendedor" <%= rol === 'vendedor' ? 'selected' : '' %>>Vendedor</option>
         <option value="encargado" <%= rol === 'encargado' ? 'selected' : '' %>>Encargado</option>
       </select>
@@ -412,6 +543,17 @@
     </form>
   </header>
 
-  <% if (rol !== 'estudiante') { %>
+  <% if (rol === 'vip') { %>
+    <p class="banda-rol banda-rol--vip" role="status">
+      <strong>★ Cliente VIP</strong>
+      <span>Compras sin pago previo: el monto se suma a tu deuda.</span>
+      <span>Deuda actual: <strong data-deuda-actual><%= deudaVipFormateada %></strong> · <a href="/deuda">Ver deuda</a></span>
+    </p>
+  <% } else if (rol === 'estudiante') { %>
+    <p class="banda-rol banda-rol--estudiante" role="status">
+      <strong>Estudiante</strong>
+      <span>Pagas por adelantado en la pasarela y retiras con tu código de retiro.</span>
+    </p>
+  <% } else { %>
     <p class="nota-rol">Estás viendo la aplicación como <strong><%= rol %></strong>. Las pantallas de este rol se agregan en historias posteriores.</p>
   <% } %>

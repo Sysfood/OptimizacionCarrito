@@ -310,7 +310,7 @@ describe('HU-04 · Reserva temporal de unidades', () => {
       .get(`/pedido/conciliacion/${pago.pedidoId}`)
       .expect(200);
     expect(pagina.text).toContain('Pago en resolución');
-    expect(pagina.text).toContain('reversa simulada');
+    expect(pagina.text).toContain('reembolso acordado');
     expect(pagina.text).not.toContain('Pedido confirmado');
 
     const conciliacion = db

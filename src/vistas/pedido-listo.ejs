@@ -2,22 +2,37 @@
 
 <main class="contenedor">
   <section class="intro">
-    <h1>Pedido listo para pagar</h1>
+    <% if (pedido.esVip) { %>
+      <h1>Pedido listo para confirmar</h1>
+    <% } else { %>
+      <h1>Pedido listo para pagar</h1>
+    <% } %>
     <p>Revisaste el pedido y el total está confirmado.</p>
+    <%- include('parciales/pasos-compra', { esVip: pedido.esVip, pasoActual: 2 }) %>
   </section>
 
   <div class="aviso aviso--exito" role="status">
     <h2>Todo en orden</h2>
     <p>El total del pedido es <strong data-total="<%= pedido.total %>"><%= pedido.totalFormateado %></strong>.</p>
-    <p>El pedido sigue en estado <strong><%= pedido.estado %></strong> hasta que inicies el pago en la pasarela simulada.</p>
+    <% if (pedido.esVip) { %>
+      <p>Como cliente VIP no pagas ahora: al confirmar, el pedido queda aprobado con su código de retiro y el monto se suma a tu deuda.</p>
+    <% } else { %>
+      <p>El pedido sigue en estado <strong><%= pedido.estado %></strong> hasta que inicies el pago en la pasarela simulada.</p>
+    <% } %>
   </div>
 
   <div class="acciones-pedido">
     <a class="boton-secundario" href="/pedido">Volver al pedido</a>
     <a class="boton-secundario" href="/catalogo">Seguir comprando</a>
-    <form method="post" action="/pedido/pagar">
-      <button type="submit" class="boton-principal">Pagar <%= pedido.totalFormateado %></button>
-    </form>
+    <% if (pedido.esVip) { %>
+      <form method="post" action="/pedido/confirmar-vip">
+        <button type="submit" class="boton-principal">Confirmar pedido sin pago previo</button>
+      </form>
+    <% } else { %>
+      <form method="post" action="/pedido/pagar">
+        <button type="submit" class="boton-principal">Pagar <%= pedido.totalFormateado %></button>
+      </form>
+    <% } %>
   </div>
 </main>
 

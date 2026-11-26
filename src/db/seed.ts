@@ -1,4 +1,8 @@
 import {
+  CONTACTO_CLIENTE_VIP_DEMO,
+  NOMBRE_CLIENTE_VIP_DEMO,
+} from '../dominio/cliente';
+import {
   CONTACTO_CLIENTE_DEMO,
   NOMBRE_CLIENTE_DEMO,
 } from '../dominio/pedido';
@@ -90,5 +94,16 @@ export function sembrar(db: Db): void {
       NOMBRE_CLIENTE_DEMO,
       CONTACTO_CLIENTE_DEMO,
     );
+  }
+
+  const clienteVip = db
+    .prepare('SELECT id FROM cliente WHERE contacto = ?')
+    .get(CONTACTO_CLIENTE_VIP_DEMO) as { id: number } | undefined;
+
+  if (!clienteVip) {
+    // La deuda de un cliente VIP nuevo parte en $0 (HU-12).
+    db.prepare(
+      'INSERT INTO cliente (nombre, contacto, es_vip, deuda) VALUES (?, ?, 1, 0)',
+    ).run(NOMBRE_CLIENTE_VIP_DEMO, CONTACTO_CLIENTE_VIP_DEMO);
   }
 }
