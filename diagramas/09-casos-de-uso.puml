@@ -11,8 +11,13 @@ skinparam UsecaseBackgroundColor #FFFFFF
 skinparam RectangleBorderColor #2F5D8A
 
 actor Estudiante
+actor "Cliente VIP" as VIP
 actor Vendedor
 actor Encargado
+
+' El cliente VIP es una especialización del estudiante:
+' hereda todos sus casos de uso y además tiene los propios.
+Estudiante <|-- VIP
 
 rectangle "TurnoCarrito" {
   usecase "Consultar catálogo\ny disponibilidad" as CU01
@@ -22,6 +27,11 @@ rectangle "TurnoCarrito" {
   usecase "Gestionar preparación y\navisar pedido listo" as CU03
   usecase "Administrar disponibilidad\ndel canal digital" as CU06
   usecase "Consultar reporte de\nventas digitales" as CU05
+
+  rectangle "Cliente VIP" {
+    usecase "Crear pedido VIP\nsin pago previo" as CU08
+    usecase "Consultar deuda" as CU09
+  }
 }
 
 actor "Pasarela de pago" as Pasarela <<sistema externo>>
@@ -31,11 +41,14 @@ Estudiante --> CU01
 Estudiante --> CU02
 Estudiante --> CU07
 Estudiante --> CU04
+VIP --> CU08
+VIP --> CU09
 Vendedor --> CU04
 Vendedor --> CU03
 Vendedor --> CU06
 Encargado --> CU05
 
+' CU-08 no se asocia a la Pasarela: el pedido VIP se confirma sin pago.
 CU02 --> Pasarela
 CU03 --> Notif
 @enduml
