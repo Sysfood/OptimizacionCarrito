@@ -1,0 +1,56 @@
+@startuml dss-03
+skinparam defaultFontName DejaVu Sans
+skinparam defaultFontSize 13
+skinparam shadowing false
+skinparam ArrowColor #333333
+skinparam SequenceLifeLineBorderColor #888888
+skinparam ParticipantBorderColor #1f4e79
+skinparam ParticipantBackgroundColor #ffffff
+skinparam ActorBorderColor #1f4e79
+skinparam ActorBackgroundColor #ffffff
+skinparam SequenceGroupBorderColor #8a6508
+skinparam SequenceGroupHeaderFontColor #8a6508
+skinparam NoteBorderColor #999999
+skinparam NoteBackgroundColor #fffdf3
+title DSS-03 — Crear pedido VIP sin pago previo y consultar deuda\n(CU-08 · CU-09 · HU-11 · HU-12)
+
+actor "Cliente VIP" as VIP
+participant "TurnoCarrito\n<<sistema>>" as SIS
+
+VIP -> SIS : crear pedido VIP (productos y cantidades)
+SIS -> SIS : verificar cliente VIP y deuda
+
+alt el cliente no es VIP
+  SIS --> VIP : pedido no confirmado: debe pagar por la Pasarela de pago (DSS-01)
+
+else solicitud repetida (el pedido ya fue confirmado)
+  SIS --> VIP : pedido ya confirmado (mismo código de retiro, deuda sin cambios)
+
+else la deuda alcanzó el máximo permitido
+  SIS --> VIP : pedido no realizado: debe saldar su deuda para continuar
+
+else cliente VIP con deuda bajo el máximo
+  SIS -> SIS : revalidar disponibilidad vendible
+
+  alt hay disponibilidad para todos los productos
+    SIS -> SIS : descontar existencias
+    SIS -> SIS : confirmar pedido y asignar código de retiro
+    SIS -> SIS : sumar total del pedido a la deuda
+    SIS --> VIP : pedido confirmado (código de retiro, estado, deuda actual)
+  else algún producto sin disponibilidad
+    SIS --> VIP : pedido no aprobado: productos agotados (deuda sin cambios)
+  end
+end
+
+note over SIS
+  La deuda es un atributo del cliente VIP y se guarda dentro
+  de TurnoCarrito (caja negra). No participa la Pasarela de pago.
+  El monto máximo de deuda queda por validar con el vendedor
+  (HU-11 CA5): no se asume un valor.
+end note
+
+opt el cliente VIP consulta su deuda (HU-12)
+  VIP -> SIS : consultar deuda
+  SIS --> VIP : monto total de la deuda ($0 si aún no hay pedidos)
+end
+@enduml
