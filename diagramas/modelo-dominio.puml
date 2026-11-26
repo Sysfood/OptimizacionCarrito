@@ -53,6 +53,13 @@ class AjusteExistencia {
 class Cliente {
   nombre
   contacto
+  tipo : TipoCliente
+  deuda
+}
+
+enum TipoCliente {
+  estándar
+  VIP
 }
 
 class Pedido {
@@ -101,6 +108,7 @@ Jornada "1" -- "0..*" Existencia : dispone de >
 Producto "1" -- "0..*" Existencia : se controla en >
 Existencia "1" -- "0..*" AjusteExistencia : se corrige con >
 Cliente "1" -- "0..*" Pedido : realiza >
+Cliente ..> TipoCliente
 Jornada "1" -- "0..*" Pedido : recibe >
 Pedido "1" *-- "1..*" DetallePedido : se compone de >
 Producto "1" -- "0..*" DetallePedido : se pide en >
